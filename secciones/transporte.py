@@ -36,7 +36,7 @@ def render_transporte(destino):
         else:
             st.error(f"⚠️ No se encontró: {img_micro_local}")
             
-        st.write(f"Nuestras unidades de **Serrano Turismo** te llevan a **{destino}** recorriendo los mejores caminos cordobeses.")
+        st.write(f"Unidades exclusivas para **Serrano Turismo** te llevan a **{destino}** recorriendo los mejores caminos cordobeses.")
 
         # Características (Igualadas)
         st.markdown("### ✨ Características de nuestro servicio:")
