@@ -55,7 +55,7 @@ def render_excursiones(destino):
                 st.image("assets/pekos.png", use_container_width=True)
             else:
                 st.info("🖼️ Falta: assets/pekos.png")
-            st.markdown('<div class="excursion-content"><div class="excursion-title">🎡 Pekos Multiparque</div><div class="excursion-desc">Cine 5D, laberintos de espejos, zoológico y juegos mecánicos en un complejo recreativo inmenso.</div><div class="excursion-tag">Día Completo</div></div></div>', unsafe_allow_html=True)
+            st.markdown('<div class="excursion-content"><div class="excursion-title">🎡 Pekos Multiparque</div><div class="excursion-desc">Cine 5D, laberintos de espejos, montañas rusas, shows, la noria mas grande de sudamerica y juegos mecánicos en un complejo recreativo inmenso.</div><div class="excursion-tag">Día Completo</div></div></div>', unsafe_allow_html=True)
 
             # 3. Crazy Donkey
             st.markdown('<div class="excursion-card">', unsafe_allow_html=True)
@@ -63,7 +63,7 @@ def render_excursiones(destino):
                 st.image("assets/crazy.png", use_container_width=True)
             else:
                 st.info("🖼️ Falta: assets/crazy.png")
-            st.markdown('<div class="excursion-content"><div class="excursion-title">🧗‍♂️ Crazy Donkey</div><div class="excursion-desc">Aventura extrema en las sierras: tirolesas gigantes, puentes colgantes y desafíos físicos.</div><div class="excursion-tag">Aventura</div></div></div>', unsafe_allow_html=True)
+            st.markdown('<div class="excursion-content"><div class="excursion-title">🧗‍♂️ Crazy Donkey</div><div class="excursion-desc">Aventura en las sierras: tirolesas gigantes, puentes colgantes, parque acuatico, y toboganes novedosos.</div><div class="excursion-tag">Aventura</div></div></div>', unsafe_allow_html=True)
 
         with col2:
             # 2. Aquaventure
@@ -72,7 +72,7 @@ def render_excursiones(destino):
                 st.image("assets/aqua.png", use_container_width=True)
             else:
                 st.info("🖼️ Falta: assets/aqua.png")
-            st.markdown('<div class="excursion-content"><div class="excursion-title">🌊 Aquaventure</div><div class="excursion-desc">Toboganes kamikaze y juegos acuáticos increíbles para disfrutar a pleno bajo el sol cordobés.</div><div class="excursion-tag">Parque Acuático</div></div></div>', unsafe_allow_html=True)
+            st.markdown('<div class="excursion-content"><div class="excursion-title">🌊 Aquaventure</div><div class="excursion-desc">Toboganes, piletas, plaza humeda y juegos acuáticos increíbles para disfrutar a pleno bajo el sol cordobés.</div><div class="excursion-tag">Parque Acuático</div></div></div>', unsafe_allow_html=True)
 
             # 4. Wave Zone
             st.markdown('<div class="excursion-card">', unsafe_allow_html=True)
@@ -80,20 +80,20 @@ def render_excursiones(destino):
                 st.image("assets/wave.png", use_container_width=True)
             else:
                 st.info("🖼️ Falta: assets/wave.png")
-            st.markdown('<div class="excursion-content"><div class="excursion-title">🏄‍♀️ Wave Zone</div><div class="excursion-desc">La pileta de olas extremas más grande de la villa, animadores en vivo y mucha música.</div><div class="excursion-tag">Agua & Fiesta</div></div></div>', unsafe_allow_html=True)
+            st.markdown('<div class="excursion-content"><div class="excursion-title">🏄‍♀️ Wave Zone</div><div class="excursion-desc">La pileta de olas más grande de la villa, animadores en vivo y mucha música. Rampas, toboganes inflables y mucho mas.</div><div class="excursion-tag">Agua & Fiesta</div></div></div>', unsafe_allow_html=True)
 
         st.divider()
 
         # Paseos clásicos (Sin fotos, solo iconos)
         st.markdown("<h3 style='color: #1E3A8A;'>🏙️ Paseos Clásicos</h3>", unsafe_allow_html=True)
         
-        c_city, c_alfa = st.columns(2)
+        c_city, c_alfa, c_planetario = st.columns(3) # Ampliado a 3 columnas para incluir el Planetario
         with c_city:
             st.markdown("""
                 <div class="excursion-card" style="border-left: 5px solid #1E3A8A;">
                     <div class="excursion-content">
                         <div class="excursion-title">📸 City Tour Serrano</div>
-                        <div class="excursion-desc">Recorremos el pintoresco centro, la costanera del Lago San Roque y nos sacamos la clásica foto en el famoso Reloj Cucú.</div>
+                        <div class="excursion-desc">Recorremos el pintoresco centro, la costanera del Lago San Roque y su nuevo puente.</div>
                         <div class="excursion-tag">Recorrido</div>
                     </div>
                 </div>
@@ -106,6 +106,17 @@ def render_excursiones(destino):
                         <div class="excursion-title">🍫 Fábrica de Alfajores</div>
                         <div class="excursion-desc">Visita guiada para conocer los secretos de la elaboración de los alfajores cordobeses. ¡Obviamente incluye degustación!</div>
                         <div class="excursion-tag">Gastronomía</div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+        with c_planetario:
+            st.markdown("""
+                <div class="excursion-card" style="border-left: 5px solid #1E3A8A;">
+                    <div class="excursion-content">
+                        <div class="excursion-title">🪐 Planetario Pekos</div>
+                        <div class="excursion-desc">Un viaje a través del cosmos con tecnología de vanguardia para descubrir los secretos del universo.</div>
+                        <div class="excursion-tag">Educativo</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
