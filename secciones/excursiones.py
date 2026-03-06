@@ -93,7 +93,7 @@ def render_excursiones(destino):
                 <div class="excursion-card" style="border-left: 5px solid #1E3A8A;">
                     <div class="excursion-content">
                         <div class="excursion-title">📸 City Tour Serrano</div>
-                        <div class="excursion-desc">Recorremos el pintoresco centro, la costanera del Lago San Roque y su nuevo puente.</div>
+                        <div class="excursion-desc">Recorremos el pintoresco centro, la costanera del Lago San Roque y su nuevo puente, para conocer en detalle este lugar maravilloso.</div>
                         <div class="excursion-tag">Recorrido</div>
                     </div>
                 </div>
