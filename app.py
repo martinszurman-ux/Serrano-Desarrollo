@@ -82,7 +82,7 @@ else:
                 <a href="./?nav=Hoteleria&destino={dest_actual}" target="_self">Hotelería</a>
                 <a href="./?nav=Comidas&destino={dest_actual}" target="_self">Comidas</a>
                 <a href="./?nav=Excursiones&destino={dest_actual}" target="_self">Excursiones</a>
-                <a href="./?nav=Actividades&destino={dest_actual}" target="_self">Actividades</a>
+                <a href="./?nav=Actividades&destino={dest_actual}" target="_self">Actividades Nocturnas</a>
                 <a href="./?nav=Seguro&destino={dest_actual}" target="_self">Seguro / Coordinación</a>
             </div>
         </div>
