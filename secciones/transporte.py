@@ -41,7 +41,7 @@ def render_transporte(destino):
         # Características (Igualadas)
         st.markdown("### ✨ Características de nuestro servicio:")
         st.markdown("""
-        * ✅ **Buses de última generación:** Unidades modernas con máximo confort.
+        * ✅ **Buses de última generación de un solo piso:** Unidades modernas con máximo confort.
         * ✅ **Empresas de transporte Charter:** Seguridad y exclusividad garantizada.
         * ✅ **Exclusividad:** El mismo bus queda a disposición del grupo durante todos los días del viaje para los traslados a excursiones.
         """)
