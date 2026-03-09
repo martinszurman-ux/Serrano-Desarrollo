@@ -186,4 +186,19 @@ h1, [data-testid="stMarkdownContainer"] h1 {
     .eleccion-texto {
         color: #ffffff !important;
     }
+
+    /* 5. LETRAS OSCURAS EN CAJAS BLANCAS (Para que se lean en modo oscuro) */
+    /* Si la caja tiene fondo blanco inyectado, obligamos a que su texto sea oscuro */
+    div[style*="background-color: white"] *,
+    div[style*="background-color: #ffffff"] *,
+    div[style*="background-color: #FFFFFF"] *,
+    div[style*="background: white"] *,
+    div[style*="background: #fff"] * {
+        color: #1a1a1a !important;
+    }
+
+    /* Lo mismo para las alertas nativas (cajas blancas con icono) */
+    [data-testid="stAlert"] * {
+        color: #1a1a1a !important;
+    }
 }
