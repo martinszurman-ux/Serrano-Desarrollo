@@ -28,33 +28,31 @@ def render_tarifas(destino):
     if session_key not in st.session_state:
         st.session_state[session_key] = 0
 
-    # 2. ESTILOS CSS (VERSIÓN BLINDADA PARA MODO OSCURO)
+    # 2. ESTILOS CSS
     st.markdown("""
         <style>
         [data-testid="stImage"] { margin-top: -55px; margin-bottom: -20px; }
         .contenedor-selector-pago { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin: 10px 0; }
         div[data-testid="stPills"] > div { justify-content: center !important; display: flex !important; gap: 6px; }
         
-        /* Quitamos el color quemado para que se vuelva blanco en modo oscuro */
         .instruccion-pago { text-align: center; font-weight: 700; margin-bottom: 8px; font-size: 0.95rem; }
         
-        /* Itinerarios más chicos - Forzamos el texto a oscuro */
+        /* Itinerarios */
         .plan-card-container { border-radius: 12px; padding: 10px; background: #E8E8E8 !important; border: 1px solid #d1d1d1; text-align: center; min-height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 5px; transition: all 0.3s ease; }
         .selected-plan { border: 2px solid #4A90E2 !important; background-color: #ffffff !important; box-shadow: 0px 2px 8px rgba(0,0,0,0.05); }
         .header-content { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }
-        .day-number { color: #4A90E2 !important; font-size: 2.2rem; font-weight: 900; line-height: 1; margin: 0; }
+        .day-number { font-size: 2.2rem; font-weight: 900; line-height: 1; margin: 0; }
         .transport-icon { font-size: 1.5rem; line-height: 1; margin: 0; }
-        .day-text { color: #1a1a1a !important; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin-top: 5px; }
+        .day-text { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; margin-top: 5px; }
         
-        /* Hero Widget (Caja de precio) - Textos oscuros forzados */
+        /* Hero Widget */
         .hero-payment-card { background: linear-gradient(145deg, #ffffff, #f0f2f6) !important; border-radius: 20px; padding: 20px 30px; text-align: center; border: 1px solid #e0e4e8; box-shadow: 10px 10px 30px #d9dbe0; max-width: 400px; margin: 15px auto; transition: all 0.5s ease; cursor: default; }
         .hero-payment-card:hover { transform: translateY(-5px); }
-        .hero-label { color: #1a1a1a !important; font-size: 0.8rem; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-        /* Simplificamos el color del valor para que no falle en iOS/Android */
-        .hero-value { color: #1a1a1a !important; font-size: 2.8rem; font-weight: 900; margin: 0; line-height: 1; -webkit-text-fill-color: #1a1a1a !important; }
-        .hero-subtitle { color: #4A90E2 !important; font-size: 1rem; font-weight: 900; margin-top: 5px; }
+        .hero-label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        .hero-value { font-size: 2.8rem; font-weight: 900; margin: 0; line-height: 1; }
+        .hero-subtitle { font-size: 1rem; font-weight: 900; margin-top: 5px; }
         
-        /* Beneficio más discreto */
+        /* Beneficio */
         .beneficio-box { max-width: 600px; margin: 15px auto; padding: 12px; background-color: #f0f7ff !important; border-radius: 10px; border: 1px dashed #4A90E2 !important; }
         
         .styled-table th { background-color: #333333 !important; color: white !important; font-size: 0.8rem; padding: 5px !important; }
@@ -90,7 +88,6 @@ def render_tarifas(destino):
             numero = partes[0]
             resto = partes[1] if len(partes) > 1 else ""
             
-            # CAMBIO: Si el destino es San Pedro, forzamos icono de micro.
             if destino == "San Pedro" or "bus" in plan.lower():
                 icono = "🚌"
             else:
@@ -99,10 +96,15 @@ def render_tarifas(destino):
             with cols_p[i]:
                 es_activo = st.session_state[session_key] == i
                 clase_card = "selected-plan" if es_activo else ""
+                
+                # Usamos DIV con color forzado
                 card_html = f"""
                 <div class="plan-card-container {clase_card}">
-                    <div class="header-content"><span class="day-number">{numero}</span><span class="transport-icon">{icono}</span></div>
-                    <div class="day-text">{resto}</div>
+                    <div class="header-content">
+                        <div class="day-number" style="color: #4A90E2 !important;">{numero}</div>
+                        <div class="transport-icon" style="color: #1a1a1a !important;">{icono}</div>
+                    </div>
+                    <div class="day-text" style="color: #1a1a1a !important;">{resto}</div>
                 </div>
                 """
                 st.markdown(card_html, unsafe_allow_html=True)
@@ -134,20 +136,21 @@ def render_tarifas(destino):
             m_display = f"${clean_val(v[c_db]):,.0f}"
             label_cuota = f"Cuota ({cuota_sel})"
 
+        # TODO A DIV y color forzado
         st.markdown(f"""
             <div class="hero-payment-card">
-                <p class="hero-label">A abonar</p>
-                <p class="hero-value">{m_display}</p>
-                <p class="hero-subtitle">💳 {label_cuota}</p>
+                <div class="hero-label" style="color: #1a1a1a !important;">A abonar</div>
+                <div class="hero-value" style="color: #1a1a1a !important;">{m_display}</div>
+                <div class="hero-subtitle" style="color: #4A90E2 !important;">💳 {label_cuota}</div>
             </div>
         """, unsafe_allow_html=True)
 
-        # Beneficio Serrano Compacto (Fijamos el texto oscuro)
+        # Beneficio Serrano Compacto en DIV
         st.markdown(f"""
             <div class='beneficio-box'>
-                <p style='font-size: 0.85rem; color: #1a1a1a !important; text-align: center; margin: 0;'>
+                <div style='font-size: 0.85rem; color: #1a1a1a !important; text-align: center; margin: 0;'>
                     🎁 <b>¡10% OFF Serrano!</b> Pagando del 1 al 10 en efectivo (aplicado en última cuota).
-                </p>
+                </div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -168,11 +171,10 @@ def render_tarifas(destino):
         c1, c2 = st.columns(2)
         for i, b in enumerate(beneficios):
             with c1 if i % 2 == 0 else c2:
-                # Quitamos el color quemado gris para que se vuelva blanco en modo oscuro
+                # La P queda porque queremos que el modo oscuro la vuelva blanca
                 st.markdown(f'<p style="font-size:0.8rem; margin-bottom:2px;">✓ {b}</p>', unsafe_allow_html=True)
     else:
         st.warning(f"No se encontró el archivo en data/{folder}/")
 
- # --- 5. FOOTER INSTITUCIONAL ---
-    # Invocamos la función del archivo utilidades/footer.py
+    # --- 5. FOOTER INSTITUCIONAL ---
     render_footer()
