@@ -157,7 +157,7 @@ h1, [data-testid="stMarkdownContainer"] h1 {
 
 
 /* ============================================================
-   7. ADAPTACIÓN A MODO OSCURO (DARK MODE) - SEGURO Y LIMPIO
+   7. ADAPTACIÓN A MODO OSCURO (DARK MODE) - VERSIÓN EXACTA
    ============================================================ */
 @media (prefers-color-scheme: dark) {
     /* 1. Fondo general */
@@ -173,5 +173,56 @@ h1, [data-testid="stMarkdownContainer"] h1 {
         opacity: 1 !important;
     }
 
-    /* 3. Textos generales */
-    h1, h2, h3,
+    /* 3. SOLUCIÓN AL HOME (Textos invisibles) */
+    h1, h2, h3, h4, h5, h6, p, span, li,
+    .eleccion-texto, /* Esto arregla el "ELEGÍ TU DESTINO:" */
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] h1,
+    [data-testid="stMarkdownContainer"] h2,
+    [data-testid="stMarkdownContainer"] h3,
+    [data-testid="stMarkdownContainer"] span {
+        color: #f5f5f5 !important;
+    }
+
+    /* 4. BOTONES DEL HOME (San Pedro / Carlos Paz) */
+    /* Como el fondo es negro, los hacemos grises oscuros con borde para que resalten */
+    .btn-destino {
+        background-color: #2a2a2a !important; 
+        border: 1px solid #555 !important;
+        color: #ffffff !important;
+    }
+
+    /* 5. SOLUCIÓN A TARJETAS BLANCAS (Comidas, Actividades y Tarifas) */
+    /* Reemplaza cualquier div que tenga 'background-color: white' inyectado en Python */
+    [data-testid="stMarkdownContainer"] div[style*="background-color: white"],
+    [data-testid="stMarkdownContainer"] div[style*="background-color: #ffffff"],
+    [data-testid="stMarkdownContainer"] div[style*="background-color: #FFFFFF"],
+    [data-testid="stMarkdownContainer"] div[style*="background-color:#fff"],
+    [data-testid="stMarkdownContainer"] div[style*="background: white"] {
+        background-color: #1e1e1e !important;
+        border: 1px solid #444 !important;
+        color: #f5f5f5 !important;
+    }
+
+    /* 6. BOTONES "ELEGIR" EN TARIFAS */
+    /* Les da contraste y marca en rojo/naranja cuál está seleccionado/tocado */
+    [data-testid="stButton"] button {
+        background-color: #2a2a2a !important;
+        color: #ffffff !important;
+        border: 1px solid #555 !important;
+    }
+    [data-testid="stButton"] button:hover,
+    [data-testid="stButton"] button:active,
+    [data-testid="stButton"] button:focus {
+        border-color: #ff4b4b !important;
+        color: #ff4b4b !important;
+        background-color: #1a1a1a !important;
+    }
+
+    /* 7. FORMULARIOS */
+    .stTextInput input, .stSelectbox div[data-baseweb="select"], .stTextArea textarea {
+        background-color: #1e1e1e !important;
+        color: #f5f5f5 !important;
+        border: 1px solid #444 !important;
+    }
+}
