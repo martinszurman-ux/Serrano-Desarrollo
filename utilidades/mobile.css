@@ -1,180 +1,69 @@
 /* ============================================================
-   SERRANO TURISMO - MOBILE.CSS (VERSIÓN BLACK ELEGANCE PRO)
-   ============================================================ */
-
-/* 1. NAVBAR BASE */
-.navbar-mobile {
-    display: flex !important;
-    flex-direction: column !important;
-    height: auto !important;
-    background-color: white !important;
-    position: fixed !important;
-    top: 0; left: 0; right: 0;
-    z-index: 99999 !important;
-    border-bottom: 1px solid #f0f0f0;
-    align-items: center !important;
-}
-
-/* 2. HOME: LOGO CENTRADO Y BOTONES NEGROS */
-.logo-box-mobile-home {
-    display: flex !important;
-    justify-content: center !important;
-    width: 100% !important;
-    padding: 15px 0 5px 0 !important;
-}
-.logo-box-mobile-home img { max-height: 80px !important; width: auto !important; }
-.eleccion-texto {
-    display: block !important;
-    color: #1a1a1a !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase;
-    text-align: center !important;
-    margin-bottom: 8px !important;
-    width: 100%;
-}
-.nav-links-visible {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    width: 100% !important;
-    gap: 10px !important;
-    padding-bottom: 20px !important;
-}
-
-/* 3. LANDING: CABECERA (LOGO DER / MENU IZQ) */
-.menu-desplegable { width: 100% !important; }
-.logo-box-summary {
-    display: flex !important;
-    flex-direction: row-reverse !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 12px 20px !important;
-    list-style: none !important;
-    outline: none !important;
-}
-.logo-box-summary img { max-height: 35px !important; }
-.menu-label {
-    background: #000; color: #fff !important;
-    padding: 6px 14px; border-radius: 4px;
-    font-size: 11px; font-weight: 800;
-}
-.logo-box-summary::-webkit-details-marker { display: none; }
-
-/* 4. EL MENÚ DESPLEGABLE (FONDO NEGRO / LISTA ELEGANTE) */
-.nav-links-collapsed {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 0 !important;
-    padding: 20px 25px !important;
-    background-color: #000000 !important;
-}
-
-/* Títulos de categorías */
-.dropbtn {
-    width: 100% !important;
-    background: none !important;
-    color: #ffffff !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    text-align: left !important;
-    padding: 15px 0 10px 0 !important;
-    border: none !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Contenedor de links */
-.dropdown-content {
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-    padding-left: 10px !important;
-}
-
-/* Links individuales */
-.dropdown-content a {
-    color: #cccccc !important;
-    font-size: 14px !important;
-    text-decoration: none !important;
-    padding: 10px 0 !important;
-    display: block !important;
-    font-weight: 400 !important;
-    border-bottom: 1px solid #222;
-}
-
-/* BOTÓN: VOLVER A ELEGIR DESTINO (Ajustado) */
-.nav-links-collapsed .nav-item {
-    width: 100% !important;
-    padding: 25px 0 !important;
-    margin-top: 15px !important;
-    background-color: transparent !important;
-    color: #ffffff !important;
-    font-weight: 800 !important;
-    font-size: 11px !important;
-    text-align: left !important;
-    text-decoration: none !important;
-    border-top: 1px solid #333 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.nav-links-collapsed .nav-item::before {
-    content: "← ";
-    font-size: 14px;
-    margin-right: 5px;
-}
-
-/* 5. BOTONES DEL HOME (NEGROS) */
-.btn-destino {
-    width: 85% !important;
-    padding: 12px !important;
-    background-color: #000 !important;
-    color: #fff !important;
-    border-radius: 6px !important;
-    text-align: center !important;
-    font-weight: 700 !important;
-    text-decoration: none !important;
-}
-
-/* 6. TÍTULOS DE PÁGINA */
-h1, [data-testid="stMarkdownContainer"] h1 {
-    color: #000 !important;
-    font-size: 28px !important;
-    font-weight: 900 !important;
-    text-align: left !important;
-    margin-top: 10px !important;
-}
-
-.content-wrapper {
-    margin-top: 150px !important;
-    padding: 0 20px !important;
-}
-
-.desktop-only, .espaciador-desktop { display: none !important; }
-.mobile-only { display: block !important; }
-
-
-/* ============================================================
-   7. ADAPTACIÓN A MODO OSCURO (DARK MODE)
+   7. ADAPTACIÓN A MODO OSCURO (DARK MODE) - OPTIMIZADO
    ============================================================ */
 @media (prefers-color-scheme: dark) {
-    /* 1. Fondo general y Navbar */
-    .stApp { background-color: #121212 !important; }
+    /* 1. Fondo General y Navbar */
+    .stApp { 
+        background-color: #0e1117 !important; 
+    }
     
     .navbar-mobile {
-        background-color: #121212 !important;
+        background-color: #1a1a1a !important;
         border-bottom: 1px solid #333 !important;
     }
 
-    /* 2. Textos generales y forzado de estilos en línea (los que vienen de Python) */
-    h1, h2, h3, h4, h5, h6, p, span, div,
+    /* 2. Forzado de Textos en Títulos y Párrafos */
+    h1, h2, h3, h4, h5, h6, p, span, label,
     [data-testid="stMarkdownContainer"] h1,
     [data-testid="stMarkdownContainer"] h2,
-    [data-testid="stMarkdownContainer"] h3,
-    [data-testid="stMarkdownContainer"] p {
-        color: #f5f5f5 !important;
+    [data-testid="stMarkdownContainer"] p,
+    .eleccion-texto {
+        color: #ffffff !important;
     }
 
-    /*
+    /* 3. TARIFARIOS Y TABLAS (Crucial para visibilidad) */
+    [data-testid="stTable"] {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+        border-radius: 8px;
+    }
+    
+    /* Asegura que las celdas de las tablas tengan texto claro */
+    [data-testid="stTable"] td, [data-testid="stTable"] th {
+        color: #ffffff !important;
+        border-bottom: 1px solid #333 !important;
+    }
+
+    /* 4. FORMULARIOS E INPUTS (Adhesión y otros) */
+    input, textarea, select {
+        background-color: #262730 !important;
+        color: #ffffff !important;
+        border: 1px solid #444 !important;
+    }
+
+    /* 5. TARJETAS / CONTENEDORES (Si usas st.container o st.expander) */
+    .st-emotion-cache-1r6slb0, .stVerticalBlock > div {
+        background-color: transparent !important;
+    }
+
+    /* 6. BOTONES (Mantener coherencia Black Elegance) */
+    .btn-destino {
+        background-color: #ffffff !important; /* Invertimos para que resalte en fondo oscuro */
+        color: #000000 !important;
+    }
+
+    .menu-label {
+        background: #333 !important;
+        border: 1px solid #555;
+    }
+
+    /* 7. AJUSTE DE LINKS EN EL MENÚ DESPLEGABLE */
+    .dropdown-content a {
+        color: #bbbbbb !important;
+        border-bottom: 1px solid #333 !important;
+    }
+    
+    .dropbtn {
+        color: #ffffff !important;
+    }
+}
