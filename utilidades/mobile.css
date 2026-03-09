@@ -163,7 +163,7 @@ h1, [data-testid="stMarkdownContainer"] h1 {
     /* 1. Fondo general */
     .stApp { background-color: #121212 !important; }
     
-    /* 2. SOLUCIÓN AL MENÚ TRANSPARENTE */
+    /* 2. MENÚ PROTEGIDO (Fondo sólido, no transparente) */
     .navbar-mobile,
     .nav-links-collapsed,
     .dropdown-content,
@@ -173,12 +173,5 @@ h1, [data-testid="stMarkdownContainer"] h1 {
         opacity: 1 !important;
     }
 
-    /* 3. Textos generales y forzado de estilos en línea (los que vienen de Python) */
-    h1, h2, h3, h4, h5, h6, p, span,
-    [data-testid="stMarkdownContainer"] h1,
-    [data-testid="stMarkdownContainer"] h2,
-    [data-testid="stMarkdownContainer"] h3,
-    [data-testid="stMarkdownContainer"] p {
-        color: #f5f5f5 !important;
-    }
-}
+    /* 3. Textos generales */
+    h1, h2, h3,
