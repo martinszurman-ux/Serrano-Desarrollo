@@ -97,4 +97,82 @@ def render_tarifas(destino):
                 icono = "✈️"
             
             with cols_p[i]:
-                es_activo = st.session_state
+                es_activo = st.session_state[session_key] == i
+                clase_card = "selected-plan" if es_activo else ""
+                card_html = f"""
+                <div class="plan-card-container {clase_card}">
+                    <div class="header-content"><span class="day-number">{numero}</span><span class="transport-icon">{icono}</span></div>
+                    <div class="day-text">{resto}</div>
+                </div>
+                """
+                st.markdown(card_html, unsafe_allow_html=True)
+                if st.button("Elegir", key=f"btn_{folder}_{i}_{archivo_nombre}", use_container_width=True):
+                    st.session_state[session_key] = i
+                    st.rerun()
+
+        idx = st.session_state[session_key]
+        if idx >= len(df): idx = 0
+        v = df.iloc[idx]
+
+        # --- SECCIÓN 2: OPCIONES DE PAGO ---
+        excluir = ['Programa', 'Contado', 'Valor del Viaje', 'Costo Total', 'Valor del viaje']
+        opciones_cuotas = [c.replace('_', ' ') for c in df.columns if c not in excluir]
+        opciones_finales = ["1 Pago"] + opciones_cuotas
+
+        st.markdown('<div class="contenedor-selector-pago">', unsafe_allow_html=True)
+        st.markdown('<p class="instruccion-pago">Plan de pago:</p>', unsafe_allow_html=True)
+        cuota_sel = st.pills("Cuotas", options=opciones_finales, default=opciones_finales[1] if len(opciones_finales) > 1 else opciones_finales[0], label_visibility="collapsed", key=f"pills_{folder}_{archivo_nombre}")
+        if not cuota_sel: cuota_sel = opciones_finales[1]
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # --- SECCIÓN 3: HERO WIDGET ---
+        if cuota_sel == "1 Pago":
+            m_display = f"${clean_val(v['Contado']):,.0f}"
+            label_cuota = "Pago Único"
+        else:
+            c_db = cuota_sel.replace(' ', '_')
+            m_display = f"${clean_val(v[c_db]):,.0f}"
+            label_cuota = f"Cuota ({cuota_sel})"
+
+        st.markdown(f"""
+            <div class="hero-payment-card">
+                <p class="hero-label">A abonar</p>
+                <p class="hero-value">{m_display}</p>
+                <p class="hero-subtitle">💳 {label_cuota}</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+        # Beneficio Serrano Compacto (Fijamos el texto oscuro)
+        st.markdown(f"""
+            <div class='beneficio-box'>
+                <p style='font-size: 0.85rem; color: #1a1a1a !important; text-align: center; margin: 0;'>
+                    🎁 <b>¡10% OFF Serrano!</b> Pagando del 1 al 10 en efectivo (aplicado en última cuota).
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+        # --- SECCIÓN 4: TABLA Y BENEFICIOS ---
+        with st.expander("Comparativa de tarifas"):
+            df_format = df.copy()
+            cols_a_borrar = [c for c in df_format.columns if 'valor del' in c.lower() or 'costo total' in c.lower()]
+            df_format = df_format.drop(columns=cols_a_borrar)
+            if 'Contado' in df_format.columns: df_format = df_format.rename(columns={'Contado': '1 Pago'})
+            df_format.columns = [c.replace('_', ' ') for c in df_format.columns]
+            for col in df_format.columns.drop('Programa'): df_format[col] = df_format[col].apply(clean_val)
+            st.markdown('<div class="styled-table">', unsafe_allow_html=True)
+            st.table(df_format.set_index('Programa').style.format("$ {:,.0f}"))
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown("<h5 style='margin-bottom:5px;'>🛡️ Servicios Incluidos</h5>", unsafe_allow_html=True)
+        beneficios = ["Liberados para niños.", "Descuentos por pago.", "Opciones personalizadas.", "Ayudas incluidas.", "Fiesta de Egresados.", "Descuentos Camperas."]
+        c1, c2 = st.columns(2)
+        for i, b in enumerate(beneficios):
+            with c1 if i % 2 == 0 else c2:
+                # Quitamos el color quemado gris para que se vuelva blanco en modo oscuro
+                st.markdown(f'<p style="font-size:0.8rem; margin-bottom:2px;">✓ {b}</p>', unsafe_allow_html=True)
+    else:
+        st.warning(f"No se encontró el archivo en data/{folder}/")
+
+ # --- 5. FOOTER INSTITUCIONAL ---
+    # Invocamos la función del archivo utilidades/footer.py
+    render_footer()
