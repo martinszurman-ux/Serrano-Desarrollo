@@ -161,11 +161,11 @@ h1, [data-testid="stMarkdownContainer"] h1 {
 a[href*="wa.me"], a[href*="whatsapp"], a[href*="api.whatsapp.com"] {
     left: auto !important;
     right: 20px !important;
-    bottom: 90px !important; 
+    bottom: 90px !important; /* Lo subimos para que no tape los iconos morados/rojos */
 }
 
 /* ============================================================
-   7. ADAPTACIÓN A MODO OSCURO (DARK MODE) - ESTADO SEGURO
+   7. ADAPTACIÓN A MODO OSCURO (DARK MODE) - ESTADO SEGURO FINAL
    ============================================================ */
 @media (prefers-color-scheme: dark) {
     /* 1. Fondo general */
@@ -196,4 +196,41 @@ a[href*="wa.me"], a[href*="whatsapp"], a[href*="api.whatsapp.com"] {
     }
 
     /* 4. TÍTULOS INVISIBLES EN EL HOME ("Serrano Turismo") */
-    [style*="color: black"],
+    [style*="color: black"], [style*="color: #000"], [style*="color: rgb(0, 0, 0)"] {
+        color: #ffffff !important;
+    }
+
+    /* 5. BOTONES NORMALES (Hacerlos grises para que se vean) */
+    .stButton > button, div[data-testid="stButton"] button {
+        background-color: #2a2a2a !important;
+        border: 1px solid #666 !important;
+        color: #ffffff !important;
+    }
+
+    /* 6. BOTÓN / VIAJE SELECCIONADO (Destacarlo fuerte) */
+    /* Cuando el botón es primary o le hacés clic (focus) */
+    div[data-testid="stButton"] button[kind="primary"],
+    div[data-testid="stButton"] button:focus,
+    div[data-testid="stButton"] button:active {
+        border: 3px solid #ff4b4b !important;
+        color: #ff4b4b !important;
+        background-color: #1e1e1e !important;
+        font-weight: 900 !important;
+    }
+
+    /* 7. TARIFAS Y CARACTERÍSTICAS (Letras oscuras en cajas blancas) */
+    [data-testid="stAlert"] *,
+    [data-testid="stAlert"] p,
+    [data-testid="stAlert"] h1,
+    [data-testid="stAlert"] h2,
+    [data-testid="stAlert"] h3,
+    [data-testid="stAlert"] span {
+        color: #1a1a1a !important;
+    }
+
+    /* Cajas HTML inyectadas (Detecta todas las variantes de blanco) */
+    div[style*="white"] *, div[style*="#fff"] *, div[style*="#FFF"] *, 
+    div[style*="#ffffff"] *, div[style*="#FFFFFF"] *, div[style*="rgb(255, 255, 255)"] * {
+        color: #1a1a1a !important;
+    }
+}
