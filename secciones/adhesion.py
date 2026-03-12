@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 from utilidades.footer import render_footer
 
 def render_adhesion(logo_url):
-    # CSS Optimizado para impresión en una sola carilla A4 - CORREGIDO
+    # CSS Corregido: Elimina menús de navegación y mejora el espaciado
     st.markdown("""
         <style>
         .main { background-color: white !important; }
@@ -30,16 +30,20 @@ def render_adhesion(logo_url):
         @media print {
             @page { 
                 size: A4; 
-                margin: 0.3cm; /* Margen mínimo */
+                margin: 0.8cm; /* Aumentamos un poco el margen de la hoja */
             }
             html, body { 
-                zoom: 78% !important; /* Zoom ajustado para 1 sola carilla */
+                zoom: 80% !important; 
                 background-color: white !important;
             }
             
-            /* OCULTAR TODO LO QUE NO SEA LA FICHA (Logos, menús, botones) */
-            header, footer, nav, [data-testid="stHeader"], [data-testid="stSidebar"], 
-            [data-testid="stImage"], .stButton, iframe, .no-print, img { 
+            /* OCULTAR MENÚS DE NAVEGACIÓN, LOGOS Y BOTONES */
+            header, footer, nav, 
+            [data-testid="stHeader"], 
+            [data-testid="stSidebar"], 
+            [data-testid="stImage"], 
+            [data-testid="stSidebarNav"], /* Oculta el menú de páginas de Streamlit */
+            .stButton, iframe, a, img { 
                 display: none !important; 
                 visibility: hidden !important;
                 height: 0 !important;
@@ -50,9 +54,9 @@ def render_adhesion(logo_url):
                 margin: 0 !important; 
             }
             
-            /* Comprimir espacios entre widgets */
+            /* ESPACIADO ENTRE SECCIONES - Para que no se vea todo pegado */
             div[data-testid="stVerticalBlock"] > div {
-                margin-bottom: -15px !important; 
+                margin-bottom: 5px !important; /* Espaciado suave entre filas */
             }
 
             input { 
@@ -60,14 +64,14 @@ def render_adhesion(logo_url):
                 border-bottom: 1px solid #000 !important; 
                 background: transparent !important; 
             }
-            hr { margin: 3px 0 !important; }
-            h1 { font-size: 1.4rem !important; }
-            h3 { font-size: 1.0rem !important; margin-top: 3px !important; }
+            hr { margin: 10px 0 !important; }
+            h1 { font-size: 1.6rem !important; margin-bottom: 10px !important; }
+            h3 { font-size: 1.1rem !important; margin-top: 15px !important; margin-bottom: 5px !important; }
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Cabecera - Reducida en margen
+    # Cabecera
     c_logo, c_tit = st.columns([1, 5])
     with c_logo:
         st.image(logo_url, width=65)
@@ -143,7 +147,7 @@ def render_adhesion(logo_url):
     """, unsafe_allow_html=True)
 
     # Firmas
-    st.markdown('<div style="margin-top: 20px;">', unsafe_allow_html=True)
+    st.markdown('<div style="margin-top: 30px;">', unsafe_allow_html=True)
     f1, f2 = st.columns(2)
     f1.markdown("<hr style='border:0.5px solid black; margin-bottom:0;'><p style='text-align:center; font-size:8pt; color:black;'>Firma Responsable</p>", unsafe_allow_html=True)
     f2.markdown("<hr style='border:0.5px solid black; margin-bottom:0;'><p style='text-align:center; font-size:7pt; color:black;'>Aclaración y N° de C.U.I.L.</p>", unsafe_allow_html=True)
@@ -160,5 +164,4 @@ def render_adhesion(logo_url):
         height=70,
     )
 
-    # Footer
     render_footer()
