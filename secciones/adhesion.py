@@ -26,6 +26,9 @@ def render_adhesion(logo_url):
             border: 1px solid #ced4da !important;
             height: 30px !important;
         }
+        /* Selector visual de plan — solo se ve en pantalla, se oculta al imprimir */
+        .plan-selector-screen { display: block; }
+        .plan-selector-print  { display: none; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -96,11 +99,29 @@ def render_adhesion(logo_url):
     st.text_input("Correo Electrónico (E-mail):", key="tut_email_f")
 
     # ── PLAN DE PAGO ──────────────────────────────────────────────────────────
-    st.pills(
+    # En pantalla: pills interactivos
+    # Al imprimir: el JS reemplaza con "Usted ha seleccionado el Plan: PLAN X"
+    PLANES = ["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"]
+
+    st.markdown('<div class="plan-selector-screen">', unsafe_allow_html=True)
+    plan_elegido = st.pills(
         "Seleccione su Plan de Pago:",
-        options=["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"],
+        options=PLANES,
         default="PLAN 4",
         key="plan_sel_f",
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Texto que aparecerá en el PDF (oculto en pantalla, visible al imprimir)
+    plan_texto = plan_elegido if plan_elegido else "PLAN 4"
+    st.markdown(
+        f"""<div class="plan-selector-print"
+                 style="font-size:0.85rem; font-weight:700; color:black;
+                        border:1px solid #000; padding:6px 10px;
+                        border-radius:4px; display:none;">
+            Plan de Pagos seleccionado: <span style="text-decoration:underline;">{plan_texto}</span>
+        </div>""",
+        unsafe_allow_html=True,
     )
 
     # ── TEXTO LEGAL ───────────────────────────────────────────────────────────
@@ -134,10 +155,6 @@ def render_adhesion(logo_url):
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ── BOTÓN DE IMPRESIÓN CON JS ─────────────────────────────────────────────
-    # Estrategia: en lugar de depender de @media print desde el iframe,
-    # el JS inyecta un <style id="print-overrides"> directamente en el
-    # documento padre ANTES de imprimir, y lo elimina en afterprint.
-    # Esto garantiza que Chrome aplique los estilos correctamente.
     components.html(
         """
         <html><body>
@@ -170,33 +187,26 @@ def render_adhesion(logo_url):
                 });
             });
 
-            // Quitar margin del content-wrapper (espacio reservado para el navbar)
             const wrapper = doc.querySelector('.content-wrapper');
             const prevMargin = wrapper ? wrapper.style.marginTop : null;
             if (wrapper) wrapper.style.marginTop = '0px';
 
-            // ── 2. INYECTAR CSS DE IMPRESIÓN DIRECTO EN EL PADRE ─────────
-            // Chrome aplica esto de forma mucho más confiable que @media print
-            // desde dentro de un iframe.
+            // ── 2. INTERCAMBIAR: ocultar pills, mostrar texto del plan ────
+            doc.querySelectorAll('.plan-selector-screen').forEach(el => el.style.display = 'none');
+            doc.querySelectorAll('.plan-selector-print').forEach(el => el.style.display = 'block');
+
+            // ── 3. INYECTAR CSS DE IMPRESIÓN EN EL PADRE ─────────────────
             const printStyle = doc.createElement('style');
             printStyle.id = 'serrano-print-overrides';
             printStyle.textContent = `
                 @page { size: A4 portrait; margin: 1cm; }
-
                 body, html { background: white !important; }
-
-                /* Quitar todo el padding/margin extra de Streamlit */
                 .main .block-container {
                     padding: 0 !important;
                     margin: 0 !important;
                     max-width: 100% !important;
                 }
-                .content-wrapper {
-                    margin-top: 0 !important;
-                    padding: 0 !important;
-                }
-
-                /* Compactar gaps verticales — esto es lo que genera el espacio en blanco */
+                .content-wrapper { margin-top: 0 !important; padding: 0 !important; }
                 [data-testid="stVerticalBlock"] {
                     gap: 0.25rem !important;
                     row-gap: 0.25rem !important;
@@ -205,12 +215,7 @@ def render_adhesion(logo_url):
                     margin-bottom: 0 !important;
                     padding-bottom: 0 !important;
                 }
-                /* Gap entre columnas */
-                [data-testid="stHorizontalBlock"] {
-                    gap: 0.5rem !important;
-                }
-
-                /* Inputs: solo línea inferior, sin caja */
+                [data-testid="stHorizontalBlock"] { gap: 0.5rem !important; }
                 input {
                     border: none !important;
                     border-bottom: 1px solid #000 !important;
@@ -219,50 +224,37 @@ def render_adhesion(logo_url):
                     font-size: 0.8rem !important;
                     padding: 0 !important;
                 }
-
-                /* Tipografía compacta */
                 h1 { font-size: 1.1rem !important; margin: 0 0 2px !important; line-height: 1.2 !important; }
                 h3 { font-size: 0.82rem !important; margin: 3px 0 1px !important; line-height: 1.2 !important; }
                 p  { font-size: 0.78rem !important; margin: 1px 0 !important; line-height: 1.2 !important; }
                 label p { font-size: 0.72rem !important; margin: 0 !important; }
                 hr { margin: 2px 0 !important; }
-
-                /* Logo de cabecera más chico */
                 [data-testid="stImage"] img { max-height: 45px !important; width: auto !important; }
-
-                /* Texto legal */
                 div[style*="0.68rem"] {
                     font-size: 0.6rem !important;
                     line-height: 1.05 !important;
                     padding: 4px !important;
                 }
-
-                /* Firmas */
                 .firmas-container { margin-top: 10px !important; }
-
-                /* Evitar saltos de página dentro del formulario */
                 .main { page-break-inside: avoid; }
             `;
             doc.head.appendChild(printStyle);
 
-            // ── 3. IMPRIMIR ───────────────────────────────────────────────
+            // ── 4. IMPRIMIR ───────────────────────────────────────────────
             setTimeout(() => {
                 window.parent.print();
 
-                // ── 4. RESTAURAR TODO ─────────────────────────────────────
                 function restoreAll() {
-                    // Quitar el style inyectado
                     const injected = doc.getElementById('serrano-print-overrides');
                     if (injected) injected.remove();
-                    // Restaurar elementos ocultos
                     snapshot.forEach(({ el, prev }) => { el.style.display = prev; });
-                    // Restaurar margin del wrapper
                     if (wrapper && prevMargin !== null) wrapper.style.marginTop = prevMargin;
+                    // Restaurar plan selector
+                    doc.querySelectorAll('.plan-selector-screen').forEach(el => el.style.display = '');
+                    doc.querySelectorAll('.plan-selector-print').forEach(el => el.style.display = 'none');
                 }
 
-                // Fallback: si afterprint no se dispara (cancelar en Chrome)
                 const fallbackTimer = setTimeout(restoreAll, 2000);
-
                 window.parent.addEventListener('afterprint', function restore() {
                     clearTimeout(fallbackTimer);
                     restoreAll();
@@ -276,5 +268,13 @@ def render_adhesion(logo_url):
         """,
         height=70,
     )
+
+    # ── AVISO SOBRE ENCABEZADOS DE CHROME ─────────────────────────────────────
+    st.markdown("""
+        <div style="font-size:0.72rem; color:#888; margin-top:8px; text-align:center;">
+        💡 <b>Consejo:</b> En el diálogo de impresión, ir a <b>Más opciones</b> 
+        y desactivar <b>Encabezados y pies de página</b> para un resultado más limpio.
+        </div>
+    """, unsafe_allow_html=True)
 
     render_footer()
