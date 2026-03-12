@@ -139,4 +139,34 @@ def render_adhesion(logo_url):
     st.markdown('<div id="seccion-firmas" style="margin-top: 25px;">', unsafe_allow_html=True)
     f1, f2 = st.columns(2)
     f1.markdown("<hr style='border:0.5px solid black; margin-bottom:0;'><p style='text-align:center; font-size:8pt; color:black;'>Firma Responsable</p>", unsafe_allow_html=True)
-    f2.markdown("<hr style='
+    f2.markdown("<hr style='border:0.5px solid black; margin-bottom:0;'><p style='text-align:center; font-size:7pt; color:black;'>Aclaración y N° de C.U.I.L.</p>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # --- BOTONES (Ocultos en impresión) ---
+    st.markdown("---")
+    col_btn1, col_btn2 = st.columns(2)
+    
+    # Botón de Guardar (Siempre activo)
+    if col_btn1.button("💾 GUARDAR REGISTRO"):
+        nuevo = pd.DataFrame([{
+            "Fecha": f_sol, "Colegio": colegio, "Anio": anio_div, 
+            "Pasajero": f"{p_ape} {p_nom}", "DNI": p_dni, "Plan": plan_sel
+        }])
+        nuevo.to_csv(DB_FILE, mode='a', header=False, index=False)
+        st.success("✅ Registro guardado en la base de datos.")
+
+    # Botón de Imprimir (Siempre activo y con foco directo)
+    with col_btn2:
+        components.html("""
+            <button style="background-color: #2E7D32; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;" 
+            onclick="window.parent.focus(); window.parent.print()">🖨️ IMPRIMIR AHORA</button>
+        """, height=70)
+
+    # Sidebar para administración
+    with st.sidebar:
+        st.header("Administración")
+        if os.path.exists(DB_FILE):
+            df_hist = pd.read_csv(DB_FILE)
+            st.download_button("📥 Descargar CSV", df_hist.to_csv(index=False).encode('utf-8'), "adhesiones.csv")
+
+    render_footer()
