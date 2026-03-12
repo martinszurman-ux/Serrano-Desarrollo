@@ -30,37 +30,93 @@ def render_adhesion(logo_url):
 
         @media print {
             @page {
-                size: A4;
-                margin: 0.6cm;
+                size: A4 portrait;
+                margin: 0;
             }
+
+            /* Ocultamos chrome UI que puede filtrarse via CSS */
+            .navbar, .navbar-mobile,
+            [data-testid="stHeader"], [data-testid="stToolbar"],
+            [data-testid="stDecoration"], [data-testid="stSidebar"],
+            .stButton, footer, .footer-container, .wa-float, iframe {
+                display: none !important;
+            }
+
             html, body {
-                zoom: 72% !important;
-                background-color: white !important;
-                color: black !important;
-            }
-            .main .block-container {
-                padding: 0 !important;
+                width: 210mm;
+                height: 297mm;
                 margin: 0 !important;
-                max-width: 100% !important;
+                padding: 0 !important;
+                background: white !important;
             }
-            /* Compactar espaciados para entrar en una sola hoja */
-            .main .block-container > div > div > div {
-                gap: 0.2rem !important;
+
+            /* El truco: escalamos el bloque principal al tamaño de la hoja A4
+               con transform, que Chrome respeta mejor que zoom en @media print */
+            .main .block-container {
+                width: 210mm !important;
+                max-width: 210mm !important;
+                min-height: auto !important;
+                padding: 10mm 12mm 8mm 12mm !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                /* Forzamos que todo entre en una sola página */
+                page-break-inside: avoid;
+                overflow: hidden !important;
             }
-            [data-testid="stVerticalBlock"] {
-                gap: 0.2rem !important;
+
+            /* Compactar gaps internos de Streamlit */
+            [data-testid="stVerticalBlock"] > div {
+                gap: 0.15rem !important;
             }
+            [data-testid="stHorizontalBlock"] {
+                gap: 0.5rem !important;
+            }
+
+            /* Inputs: solo línea inferior */
             input {
                 border: none !important;
                 border-bottom: 1px solid #000 !important;
                 background: transparent !important;
-                height: 22px !important;
+                height: 20px !important;
+                padding: 0 !important;
+                font-size: 0.8rem !important;
             }
-            h1 { font-size: 1.4rem !important; margin-bottom: 4px !important; margin-top: 0 !important; }
-            h3 { font-size: 0.95rem !important; margin-top: 6px !important; margin-bottom: 2px !important; }
-            hr { margin: 3px 0 !important; }
-            p { margin: 2px 0 !important; }
-            .firmas-container { margin-top: 20px !important; }
+
+            /* Tipografía compacta */
+            h1 {
+                font-size: 1.2rem !important;
+                margin: 0 0 2px 0 !important;
+                line-height: 1.2 !important;
+            }
+            h3 {
+                font-size: 0.82rem !important;
+                margin: 4px 0 2px 0 !important;
+                line-height: 1.2 !important;
+            }
+            p, label, span {
+                font-size: 0.78rem !important;
+                margin: 1px 0 !important;
+                line-height: 1.2 !important;
+            }
+            hr {
+                margin: 2px 0 !important;
+                border-color: #ccc !important;
+            }
+            label p {
+                font-size: 0.72rem !important;
+                margin-bottom: 1px !important;
+            }
+
+            /* Texto legal más pequeño para ahorrar espacio */
+            div[style*="font-size: 0.68rem"] {
+                font-size: 0.62rem !important;
+                line-height: 1.05 !important;
+                padding: 4px !important;
+            }
+
+            .firmas-container {
+                margin-top: 12px !important;
+            }
         }
         </style>
     """, unsafe_allow_html=True)
@@ -170,8 +226,6 @@ def render_adhesion(logo_url):
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ── BOTÓN DE IMPRESIÓN CON JS ─────────────────────────────────────────────
-    # Fix bug cancelar: Chrome a veces no dispara afterprint si se cancela.
-    # Solución: usamos un flag + setTimeout de 2s como fallback de restauración.
     components.html(
         """
         <html><body>
@@ -189,18 +243,11 @@ def render_adhesion(logo_url):
             const doc = window.parent.document;
 
             const selectorsToHide = [
-                '.navbar',
-                '.navbar-mobile',
-                '[data-testid="stHeader"]',
-                '[data-testid="stToolbar"]',
-                '[data-testid="stDecoration"]',
-                '[data-testid="stSidebar"]',
+                '.navbar', '.navbar-mobile',
+                '[data-testid="stHeader"]', '[data-testid="stToolbar"]',
+                '[data-testid="stDecoration"]', '[data-testid="stSidebar"]',
                 '[data-testid="stSidebarNav"]',
-                '.stButton',
-                'footer',
-                '.footer-container',
-                '.wa-float',
-                'iframe',
+                '.stButton', 'footer', '.footer-container', '.wa-float', 'iframe',
             ];
 
             const snapshot = [];
@@ -215,7 +262,6 @@ def render_adhesion(logo_url):
             const prevMargin = wrapper ? wrapper.style.marginTop : null;
             if (wrapper) wrapper.style.marginTop = '0px';
 
-            // Función de restauración reutilizable
             function restoreAll() {
                 snapshot.forEach(({ el, prev }) => { el.style.display = prev; });
                 if (wrapper && prevMargin !== null) wrapper.style.marginTop = prevMargin;
@@ -224,16 +270,14 @@ def render_adhesion(logo_url):
             setTimeout(() => {
                 window.parent.print();
 
-                // Fallback: si afterprint no se dispara (ej. cancelar en Chrome),
-                // restauramos igual a los 2 segundos
+                // Fallback por si afterprint no se dispara (cancelar en Chrome)
                 const fallbackTimer = setTimeout(restoreAll, 2000);
 
                 window.parent.addEventListener('afterprint', function restore() {
-                    clearTimeout(fallbackTimer);  // cancelamos el fallback si afterprint sí se disparó
+                    clearTimeout(fallbackTimer);
                     restoreAll();
                     window.parent.removeEventListener('afterprint', restore);
                 }, { once: true });
-
             }, 300);
         }
         </script>
