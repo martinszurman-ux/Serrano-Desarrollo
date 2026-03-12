@@ -6,72 +6,67 @@ import streamlit.components.v1 as components
 from utilidades.footer import render_footer
 
 def render_adhesion(logo_url):
-    # --- LÓGICA DE DATOS PARA EXCEL ---
+    # --- BASE DE DATOS CSV ---
     DB_FILE = "datos_adhesiones.csv"
     if not os.path.exists(DB_FILE):
         df_init = pd.DataFrame(columns=["Fecha", "Colegio", "Anio", "Pasajero", "DNI", "Plan"])
         df_init.to_csv(DB_FILE, index=False)
 
-    # CSS RADICAL PARA IMPRESIÓN (ELIMINA LOGOS Y MENÚS)
+    # CSS PARA FORZAR UNA SOLA HOJA Y OCULTAR LOGOS GIGANTES
     st.markdown("""
         <style>
         .main { background-color: white !important; }
         label p { font-weight: 700 !important; font-size: 0.8rem !important; color: black !important; }
-        
-        /* ESTILO PARA PANTALLA */
         input { height: 28px !important; }
 
         @media print {
-            /* 1. OCULTAR TODO LO QUE NO SEA EL CONTENIDO CENTRAL */
+            /* 1. OCULTAR TODO LO QUE NO ES EL FORMULARIO */
             header, footer, [data-testid="stHeader"], [data-testid="stSidebar"], 
             [data-testid="stImage"], .stButton, iframe, [data-testid="stSidebarNav"],
-            nav, .no-print { 
+            nav, .no-print, #MainMenu { 
                 display: none !important; 
                 visibility: hidden !important;
                 height: 0 !important;
             }
             
-            /* 2. AJUSTAR PÁGINA A4 */
-            @page { size: A4; margin: 0.5cm; }
+            /* 2. AJUSTES DE PÁGINA */
+            @page { size: A4; margin: 0.4cm; }
             html, body { 
-                zoom: 82%; 
+                zoom: 80%; 
                 background-color: white !important;
                 color: black !important;
             }
             
-            /* 3. QUITAR ESPACIOS DE STREAMLIT */
+            /* 3. COMPRESIÓN DE ESPACIOS */
             .main .block-container { 
                 padding: 0 !important; 
                 margin: 0 !important; 
-                max-width: 100% !important;
             }
             div[data-testid="stVerticalBlock"] > div {
-                margin-bottom: -12px !important; /* Comprime filas */
+                margin-bottom: -12px !important; 
             }
             
-            /* 4. CONVERTIR INPUTS EN LÍNEAS */
+            /* 4. ESTILO DE FORMULARIO IMPRESO */
             input { 
                 border: none !important; 
                 border-bottom: 1px solid black !important; 
                 background: transparent !important;
-                color: black !important;
             }
-            hr { margin: 5px 0 !important; border: 0.5px solid black !important; }
+            hr { margin: 4px 0 !important; border: 0.5px solid black !important; }
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # --- CONTENIDO DE LA FICHA ---
-    # Usamos HTML directo para el título en lugar de st.title/st.image para evitar que Streamlit lo trate como widget
+    # Título manual (Evita que Streamlit use widgets de imagen que se agrandan)
     st.markdown(f"""
         <div style="text-align: center;">
-            <h1 style="margin: 0; color: black; font-size: 24px;">SOLICITUD DE INGRESO</h1>
+            <h1 style="margin: 0; color: black; font-size: 22px;">SOLICITUD DE INGRESO</h1>
             <p style="margin: 0; font-weight: bold; color: black;">Serrano Turismo - Ficha de Adhesión</p>
         </div>
         <hr style="margin: 5px 0;">
     """, unsafe_allow_html=True)
 
-    # Datos de Control
+    # --- CUERPO DE LA FICHA ---
     st.markdown("### 📋 DATOS DE CONTROL")
     c1, c2, c3, c4 = st.columns(4)
     f_sol = c1.date_input("Fecha de Solicitud", datetime.now())
@@ -90,8 +85,8 @@ def render_adhesion(logo_url):
     
     cd1, cd2, cd3 = st.columns([1, 1, 1])
     p_dni = cd1.text_input("DNI / CUIL", key="pas_dni_f")
-    p_vence = cd2.text_input("Fecha de Vencimiento DNI", key="pas_vence_f") 
-    p_nace = cd3.date_input("Fecha de Nacimiento", min_value=datetime(1990,1,1), key="pas_nace_f")
+    p_vence = cd2.text_input("Vencimiento DNI", key="pas_vence_f") 
+    p_nace = cd3.date_input("Nacimiento", min_value=datetime(1990,1,1), key="pas_nace_f")
     
     st.radio("Sexo", ["Masculino", "Femenino", "X"], horizontal=True, key="pas_sexo_f")
 
@@ -103,17 +98,16 @@ def render_adhesion(logo_url):
     t1_1, t1_2, t1_3 = st.columns([2, 1, 1])
     t1_nom = t1_1.text_input("Nombre y Apellido", key="t1_nom_f")
     t1_cuil = t1_2.text_input("CUIL", key="t1_cuil_f")
-    t1_tel = t1_3.text_input("Teléfono de Contacto", key="t1_tel_f")
-    
+    t1_tel = t1_3.text_input("Teléfono", key="t1_tel_f")
     t_email = st.text_input("Correo Electrónico (E-mail):", key="tut_email_f")
 
     plan_sel = st.pills("Seleccione su Plan de Pago:", 
                        options=["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"], 
                        default="PLAN 4", key="plan_sel_f")
 
-    # Texto Legal
+    # Texto Legal completo
     st.markdown(f"""
-        <div style="font-size: 0.65rem; text-align: justify; border: 1px solid #ccc; padding: 6px; background-color: #f9f9f9; color: black; border-radius: 5px; line-height: 1.1;">
+        <div style="font-size: 0.65rem; text-align: justify; border: 1px solid #ccc; padding: 6px; background-color: #f9f9f9; color: black; line-height: 1.1; margin-top: 5px;">
         Declaro bajo juramento que los datos aqui volcados son absolutamente exactos y acepto, para la cancelacion de los servicios a prestar por <b>SERRANO TURISMO</b>, el plan de pagos que figura en la solicitud de reserva mencionada anteriormente denominado.<br>
         Los planes al contado deberan abonarse dentro de los 30 dias de firmado el contrato.
         Ademas declaro conocer todas y cada uno de las condiciones del contrato suscripto por mi y/u otro representante del contingente de referencia.<br>
@@ -128,38 +122,31 @@ def render_adhesion(logo_url):
     f2.markdown("<hr style='border:0.5px solid black; margin-bottom:0;'><p style='text-align:center; font-size:7pt; color:black;'>Aclaración y N° de C.U.I.L.</p>", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- VALIDACIÓN Y BOTONES ---
-    obligatorios = [colegio, anio_div, p_ape, p_nom, p_dni, p_vence, p_dom, t1_nom, t_email]
-    todo_listo = all(str(x).strip() != "" for x in obligatorios)
-
+    # --- BOTONES SIN VALIDACIÓN ---
     st.markdown("---")
-    if not todo_listo:
-        st.warning("⚠️ Complete todos los campos (excepto Cliente/Contrato/%L.O) para guardar e imprimir.")
-    else:
-        col_btn1, col_btn2 = st.columns(2)
-        if col_btn1.button("💾 GUARDAR REGISTRO"):
-            nuevo = pd.DataFrame([{
-                "Fecha": f_sol, "Colegio": colegio, "Anio": anio_div, 
-                "Pasajero": f"{p_ape} {p_nom}", "DNI": p_dni, "Plan": plan_sel
-            }])
-            nuevo.to_csv(DB_FILE, mode='a', header=False, index=False)
-            st.success("✅ Guardado. Ya puede imprimir.")
-            st.session_state['ready_print'] = True
+    col_btn1, col_btn2 = st.columns(2)
+    
+    if col_btn1.button("💾 GUARDAR REGISTRO"):
+        nuevo = pd.DataFrame([{
+            "Fecha": f_sol, "Colegio": colegio, "Anio": anio_div, 
+            "Pasajero": f"{p_ape} {p_nom}", "DNI": p_dni, "Plan": plan_sel
+        }])
+        nuevo.to_csv(DB_FILE, mode='a', header=False, index=False)
+        st.success("✅ Registro guardado en la base de datos.")
 
-        if st.session_state.get('ready_print', False):
-            with col_btn2:
-                components.html("""
-                    <button style="background-color: #2E7D32; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;" 
-                    onclick="window.parent.print()">🖨️ IMPRIMIR PDF</button>
-                """, height=70)
+    with col_btn2:
+        components.html("""
+            <button style="background-color: #2E7D32; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;" 
+            onclick="window.parent.print()">🖨️ IMPRIMIR PDF</button>
+        """, height=70)
 
-    # SIDEBAR PARA EXPORTAR
+    # Sidebar para exportar el Excel acumulado
     with st.sidebar:
-        st.header("Excel")
+        st.header("Administración")
         if os.path.exists(DB_FILE):
             df_exp = pd.read_csv(DB_FILE)
-            col_sel = st.selectbox("Filtrar por Colegio", ["Todos"] + list(df_exp["Colegio"].unique()))
-            df_final = df_exp if col_sel == "Todos" else df_exp[df_exp["Colegio"] == col_sel]
-            st.download_button("📥 Descargar CSV", df_final.to_csv(index=False).encode('utf-8'), "adhesiones.csv")
+            colegio_filtro = st.selectbox("Filtrar por Colegio", ["Todos"] + list(df_exp["Colegio"].unique()))
+            df_final = df_exp if colegio_filtro == "Todos" else df_exp[df_exp["Colegio"] == colegio_filtro]
+            st.download_button("📥 Descargar CSV para Excel", df_final.to_csv(index=False).encode('utf-8'), "adhesiones_serrano.csv")
 
     render_footer()
