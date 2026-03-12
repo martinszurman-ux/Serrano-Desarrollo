@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 from utilidades.footer import render_footer
 
 def render_adhesion(logo_url):
-    # CSS Corregido: Elimina menús de navegación y mejora el espaciado
+    # CSS Corregido: Elimina menús de navegación (círculo violeta), achica y espacia
     st.markdown("""
         <style>
         .main { background-color: white !important; }
@@ -23,26 +23,27 @@ def render_adhesion(logo_url):
             color: black !important;
             background-color: #f8f9fa !important;
             border: 1px solid #ced4da !important;
-            height: 30px !important;
+            height: 30px !important; /* Achicamos altura de inputs */
         }
         
         /* AJUSTES ESPECÍFICOS PARA IMPRESIÓN */
         @media print {
             @page { 
                 size: A4; 
-                margin: 0.8cm; /* Aumentamos un poco el margen de la hoja */
+                margin: 0.5cm; /* Márgenes mínimos para ganar espacio */
             }
             html, body { 
-                zoom: 80% !important; 
+                zoom: 80% !important; /* Reducción agresiva para asegurar 1 carilla */
                 background-color: white !important;
+                color: black !important;
             }
             
-            /* OCULTAR MENÚS DE NAVEGACIÓN, LOGOS Y BOTONES */
+            /* OCULTAR MENÚS DE NAVEGACIÓN (CÍRCULO VIOLETA), LOGOS Y BOTONES */
             header, footer, nav, 
             [data-testid="stHeader"], 
             [data-testid="stSidebar"], 
             [data-testid="stImage"], 
-            [data-testid="stSidebarNav"], /* Oculta el menú de páginas de Streamlit */
+            [data-testid="stSidebarNav"], /* Oculta específicamente el menú de páginas */
             .stButton, iframe, a, img { 
                 display: none !important; 
                 visibility: hidden !important;
@@ -54,9 +55,9 @@ def render_adhesion(logo_url):
                 margin: 0 !important; 
             }
             
-            /* ESPACIADO ENTRE SECCIONES - Para que no se vea todo pegado */
+            /* COMPRIMIR ESPACIOS PARA QUE ENTRE EN UNA HOJA */
             div[data-testid="stVerticalBlock"] > div {
-                margin-bottom: 5px !important; /* Espaciado suave entre filas */
+                margin-bottom: -15px !important; /* Estruja las filas */
             }
 
             input { 
@@ -64,14 +65,14 @@ def render_adhesion(logo_url):
                 border-bottom: 1px solid #000 !important; 
                 background: transparent !important; 
             }
-            hr { margin: 10px 0 !important; }
-            h1 { font-size: 1.6rem !important; margin-bottom: 10px !important; }
-            h3 { font-size: 1.1rem !important; margin-top: 15px !important; margin-bottom: 5px !important; }
+            hr { margin: 5px 0 !important; }
+            h1 { font-size: 1.5rem !important; margin-bottom: 5px !important; }
+            h3 { font-size: 1.1rem !important; margin-top: 5px !important; margin-bottom: 2px !important; }
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Cabecera
+    # Cabecera - Reducida en margen
     c_logo, c_tit = st.columns([1, 5])
     with c_logo:
         st.image(logo_url, width=65)
@@ -136,9 +137,9 @@ def render_adhesion(logo_url):
              options=["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"], 
              default="PLAN 4", key="plan_sel_f")
 
-    # Texto Legal
+    # Texto Legal - Ajustado para espacio
     st.markdown(f"""
-        <div style="font-size: 0.68rem; text-align: justify; border: 1px solid #ccc; padding: 8px; background-color: #f9f9f9; color: black; border-radius: 5px; line-height: 1.1;">
+        <div style="font-size: 0.65rem; text-align: justify; border: 1px solid #ccc; padding: 6px; background-color: #f9f9f9; color: black; border-radius: 5px; line-height: 1.1; margin-top: 5px;">
         Declaro bajo juramento que los datos aqui volcados son absolutamente exactos y acepto, para la cancelacion de los servicios a prestar por <b>SERRANO TURISMO</b>, el plan de pagos que figura en la solicitud de reserva mencionada anteriormente denominado.<br>
         Los planes al contado deberan abonarse dentro de los 30 dias de firmado el contrato.
         Ademas declaro conocer todas y cada uno de las condiciones del contrato suscripto por mi y/u otro representante del contingente de referencia.<br>
@@ -146,8 +147,8 @@ def render_adhesion(logo_url):
         </div>
     """, unsafe_allow_html=True)
 
-    # Firmas
-    st.markdown('<div style="margin-top: 30px;">', unsafe_allow_html=True)
+    # Firmas - Espaciado comprimido
+    st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)
     f1, f2 = st.columns(2)
     f1.markdown("<hr style='border:0.5px solid black; margin-bottom:0;'><p style='text-align:center; font-size:8pt; color:black;'>Firma Responsable</p>", unsafe_allow_html=True)
     f2.markdown("<hr style='border:0.5px solid black; margin-bottom:0;'><p style='text-align:center; font-size:7pt; color:black;'>Aclaración y N° de C.U.I.L.</p>", unsafe_allow_html=True)
@@ -165,3 +166,4 @@ def render_adhesion(logo_url):
     )
 
     render_footer()
+    
