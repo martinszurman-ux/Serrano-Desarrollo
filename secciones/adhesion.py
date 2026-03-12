@@ -26,9 +26,6 @@ def render_adhesion(logo_url):
             border: 1px solid #ced4da !important;
             height: 30px !important;
         }
-        /* Selector visual de plan — solo se ve en pantalla, se oculta al imprimir */
-        .plan-selector-screen { display: block; }
-        .plan-selector-print  { display: none; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -99,27 +96,23 @@ def render_adhesion(logo_url):
     st.text_input("Correo Electrónico (E-mail):", key="tut_email_f")
 
     # ── PLAN DE PAGO ──────────────────────────────────────────────────────────
-    # En pantalla: pills interactivos
-    # Al imprimir: el JS reemplaza con "Usted ha seleccionado el Plan: PLAN X"
-    PLANES = ["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"]
+    # Marcador ANTES de los pills — el JS lo usa para ubicar el widget
+    st.markdown('<div id="plan-pago-anchor"></div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="plan-selector-screen">', unsafe_allow_html=True)
     plan_elegido = st.pills(
         "Seleccione su Plan de Pago:",
-        options=PLANES,
+        options=["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"],
         default="PLAN 4",
         key="plan_sel_f",
     )
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Texto que aparecerá en el PDF (oculto en pantalla, visible al imprimir)
+    # Texto de reemplazo — oculto en pantalla, el JS lo muestra al imprimir
     plan_texto = plan_elegido if plan_elegido else "PLAN 4"
     st.markdown(
-        f"""<div class="plan-selector-print"
-                 style="font-size:0.85rem; font-weight:700; color:black;
-                        border:1px solid #000; padding:6px 10px;
-                        border-radius:4px; display:none;">
-            Plan de Pagos seleccionado: <span style="text-decoration:underline;">{plan_texto}</span>
+        f"""<div id="plan-print-text"
+                 style="display:none; font-size:0.85rem; font-weight:700;
+                        color:black; padding:4px 0;">
+            Plan de Pagos seleccionado: <u>{plan_texto}</u>
         </div>""",
         unsafe_allow_html=True,
     )
@@ -191,11 +184,44 @@ def render_adhesion(logo_url):
             const prevMargin = wrapper ? wrapper.style.marginTop : null;
             if (wrapper) wrapper.style.marginTop = '0px';
 
-            // ── 2. INTERCAMBIAR: ocultar pills, mostrar texto del plan ────
-            doc.querySelectorAll('.plan-selector-screen').forEach(el => el.style.display = 'none');
-            doc.querySelectorAll('.plan-selector-print').forEach(el => el.style.display = 'block');
+            // ── 2. OCULTAR EL WIDGET DE PILLS ────────────────────────────
+            // Buscamos el anchor que pusimos antes del widget y desde ahí
+            // subimos al stVerticalBlock padre para ocultar todo el bloque
+            // del pills (label + botones).
+            const anchor = doc.getElementById('plan-pago-anchor');
+            let pillsBlock = null;
+            if (anchor) {
+                // El anchor está en un stMarkdownContainer dentro de un bloque vertical.
+                // El widget pills está en el bloque hermano siguiente.
+                // Buscamos el stVerticalBlock que los contiene a ambos y ocultamos
+                // los dos hijos: el anchor y el pills.
+                const parent = anchor.closest('[data-testid="stVerticalBlock"]');
+                if (parent) {
+                    // Encontramos todos los stVerticalBlock hijos directos que
+                    // contienen el anchor o el pills (data-testid="stPills")
+                    parent.querySelectorAll('[data-testid="stPills"]').forEach(el => {
+                        snapshot.push({ el, prev: el.style.display });
+                        el.style.display = 'none';
+                    });
+                    // También el bloque que contiene el anchor
+                    const anchorBlock = anchor.closest('[data-testid="stVerticalBlock"] > div');
+                    if (anchorBlock) {
+                        snapshot.push({ el: anchorBlock, prev: anchorBlock.style.display });
+                        anchorBlock.style.display = 'none';
+                    }
+                }
+            }
+            // Fallback: ocultar por data-testid directamente en todo el doc
+            doc.querySelectorAll('[data-testid="stPills"]').forEach(el => {
+                snapshot.push({ el, prev: el.style.display });
+                el.style.display = 'none';
+            });
 
-            // ── 3. INYECTAR CSS DE IMPRESIÓN EN EL PADRE ─────────────────
+            // ── 3. MOSTRAR TEXTO DEL PLAN ─────────────────────────────────
+            const planText = doc.getElementById('plan-print-text');
+            if (planText) planText.style.display = 'block';
+
+            // ── 4. INYECTAR CSS DE IMPRESIÓN EN EL PADRE ─────────────────
             const printStyle = doc.createElement('style');
             printStyle.id = 'serrano-print-overrides';
             printStyle.textContent = `
@@ -216,6 +242,7 @@ def render_adhesion(logo_url):
                     padding-bottom: 0 !important;
                 }
                 [data-testid="stHorizontalBlock"] { gap: 0.5rem !important; }
+                [data-testid="stPills"] { display: none !important; }
                 input {
                     border: none !important;
                     border-bottom: 1px solid #000 !important;
@@ -240,7 +267,7 @@ def render_adhesion(logo_url):
             `;
             doc.head.appendChild(printStyle);
 
-            // ── 4. IMPRIMIR ───────────────────────────────────────────────
+            // ── 5. IMPRIMIR Y RESTAURAR ───────────────────────────────────
             setTimeout(() => {
                 window.parent.print();
 
@@ -249,9 +276,7 @@ def render_adhesion(logo_url):
                     if (injected) injected.remove();
                     snapshot.forEach(({ el, prev }) => { el.style.display = prev; });
                     if (wrapper && prevMargin !== null) wrapper.style.marginTop = prevMargin;
-                    // Restaurar plan selector
-                    doc.querySelectorAll('.plan-selector-screen').forEach(el => el.style.display = '');
-                    doc.querySelectorAll('.plan-selector-print').forEach(el => el.style.display = 'none');
+                    if (planText) planText.style.display = 'none';
                 }
 
                 const fallbackTimer = setTimeout(restoreAll, 2000);
@@ -269,7 +294,6 @@ def render_adhesion(logo_url):
         height=70,
     )
 
-    # ── AVISO SOBRE ENCABEZADOS DE CHROME ─────────────────────────────────────
     st.markdown("""
         <div style="font-size:0.72rem; color:#888; margin-top:8px; text-align:center;">
         💡 <b>Consejo:</b> En el diálogo de impresión, ir a <b>Más opciones</b> 
