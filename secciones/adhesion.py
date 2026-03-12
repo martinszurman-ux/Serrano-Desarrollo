@@ -70,11 +70,39 @@ def render_adhesion(logo_url):
     cd2.text_input("Fecha de Vencimiento DNI", key="pas_vence_f")
     cd3.date_input("Fecha de Nacimiento", min_value=datetime(1990, 1, 1), key="pas_nace_f")
 
-    st.radio("Sexo", ["Masculino", "Femenino", "X"], horizontal=True, key="pas_sexo_f")
+    # ── SEXO | DOMICILIO | LOCALIDAD en una sola fila ─────────────────────────
+    col_sexo, col_dom, col_cp = st.columns([1, 2, 1])
 
-    dom1, dom2 = st.columns([2, 1])
-    dom1.text_input("Domicilio Particular", key="pas_dom_f")
-    dom2.text_input("Localidad / CP", key="pas_cp_f")
+    with col_sexo:
+        st.markdown("""
+            <p style="font-weight:700; font-size:0.85rem; color:black; margin-bottom:4px;">Sexo</p>
+            <div style="display:flex; align-items:center; gap:14px; font-size:0.85rem; color:black;">
+                <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                    <input type="radio" name="sexo_sel" value="M" checked
+                           style="accent-color:#e25454; width:13px; height:13px;
+                                  border:none !important; background:none !important;">
+                    Masculino
+                </label>
+                <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                    <input type="radio" name="sexo_sel" value="F"
+                           style="accent-color:#e25454; width:13px; height:13px;
+                                  border:none !important; background:none !important;">
+                    Femenino
+                </label>
+                <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                    <input type="radio" name="sexo_sel" value="X"
+                           style="accent-color:#e25454; width:13px; height:13px;
+                                  border:none !important; background:none !important;">
+                    X
+                </label>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col_dom:
+        st.text_input("Domicilio Particular", key="pas_dom_f")
+
+    with col_cp:
+        st.text_input("Localidad / CP", key="pas_cp_f")
 
     st.markdown("<hr style='margin: 5px 0;'>", unsafe_allow_html=True)
 
@@ -195,7 +223,7 @@ def render_adhesion(logo_url):
                     padding-bottom: 0 !important;
                 }
                 [data-testid="stHorizontalBlock"] { gap: 0.5rem !important; }
-                input {
+                input[type="text"], input[type="number"] {
                     border: none !important;
                     border-bottom: 1px solid #000 !important;
                     background: transparent !important;
@@ -238,4 +266,12 @@ def render_adhesion(logo_url):
         """,
         height=70,
     )
+
+    st.markdown("""
+        <div style="font-size:0.72rem; color:#888; margin-top:8px; text-align:center;">
+        💡 <b>Consejo:</b> En el diálogo de impresión, ir a <b>Más opciones</b>
+        y desactivar <b>Encabezados y pies de página</b> para un resultado más limpio.
+        </div>
+    """, unsafe_allow_html=True)
+
     render_footer()
