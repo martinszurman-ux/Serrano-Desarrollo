@@ -238,12 +238,4 @@ def render_adhesion(logo_url):
         """,
         height=70,
     )
-
-    st.markdown("""
-        <div style="font-size:0.72rem; color:#888; margin-top:8px; text-align:center;">
-        💡 <b>Consejo:</b> En el diálogo de impresión, ir a <b>Más opciones</b> 
-        y desactivar <b>Encabezados y pies de página</b> para un resultado más limpio.
-        </div>
-    """, unsafe_allow_html=True)
-
     render_footer()
