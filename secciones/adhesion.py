@@ -31,10 +31,10 @@ def render_adhesion(logo_url):
         @media print {
             @page {
                 size: A4;
-                margin: 1cm;
+                margin: 0.6cm;
             }
             html, body {
-                zoom: 85% !important;
+                zoom: 72% !important;
                 background-color: white !important;
                 color: black !important;
             }
@@ -43,15 +43,24 @@ def render_adhesion(logo_url):
                 margin: 0 !important;
                 max-width: 100% !important;
             }
+            /* Compactar espaciados para entrar en una sola hoja */
+            .main .block-container > div > div > div {
+                gap: 0.2rem !important;
+            }
+            [data-testid="stVerticalBlock"] {
+                gap: 0.2rem !important;
+            }
             input {
                 border: none !important;
                 border-bottom: 1px solid #000 !important;
                 background: transparent !important;
+                height: 22px !important;
             }
-            h1 { font-size: 1.6rem !important; margin-bottom: 10px !important; }
-            h3 { font-size: 1.1rem !important; margin-top: 15px !important; }
-            hr { margin: 8px 0 !important; }
-            .firmas-container { margin-top: 40px !important; }
+            h1 { font-size: 1.4rem !important; margin-bottom: 4px !important; margin-top: 0 !important; }
+            h3 { font-size: 0.95rem !important; margin-top: 6px !important; margin-bottom: 2px !important; }
+            hr { margin: 3px 0 !important; }
+            p { margin: 2px 0 !important; }
+            .firmas-container { margin-top: 20px !important; }
         }
         </style>
     """, unsafe_allow_html=True)
@@ -161,18 +170,13 @@ def render_adhesion(logo_url):
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ── BOTÓN DE IMPRESIÓN CON JS ─────────────────────────────────────────────
-    # Estrategia:
-    #   1. Desde window.parent accedemos al DOM completo de Streamlit
-    #   2. Ocultamos: navbar custom (.navbar / .navbar-mobile), header de
-    #      Streamlit, sidebar, botones, footer, WhatsApp flotante e iframes
-    #   3. Quitamos el margin-top del .content-wrapper para que el form
-    #      arranque desde el top de la hoja sin espacio en blanco
-    #   4. Llamamos a print() con un pequeño delay para que el DOM se actualice
-    #   5. Con afterprint restauramos todo al estado original
+    # Fix bug cancelar: Chrome a veces no dispara afterprint si se cancela.
+    # Solución: usamos un flag + setTimeout de 2s como fallback de restauración.
     components.html(
         """
         <html><body>
         <button
+            id="print-btn"
             style="background-color: #2E7D32; color: white; padding: 10px; border: none;
                    border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px;
                    font-weight: bold;"
@@ -185,22 +189,17 @@ def render_adhesion(logo_url):
             const doc = window.parent.document;
 
             const selectorsToHide = [
-                // ── Navbar custom de Serrano Turismo ──
                 '.navbar',
                 '.navbar-mobile',
-                // ── Internos de Streamlit ──
                 '[data-testid="stHeader"]',
                 '[data-testid="stToolbar"]',
                 '[data-testid="stDecoration"]',
                 '[data-testid="stSidebar"]',
                 '[data-testid="stSidebarNav"]',
-                // ── Botones ──
                 '.stButton',
-                // ── Footer y WhatsApp flotante ──
                 'footer',
                 '.footer-container',
                 '.wa-float',
-                // ── Todos los iframes (este botón inclusive) ──
                 'iframe',
             ];
 
@@ -212,20 +211,29 @@ def render_adhesion(logo_url):
                 });
             });
 
-            // Eliminar el espacio superior del content-wrapper
-            // (que existe para dejar lugar al navbar fixed)
             const wrapper = doc.querySelector('.content-wrapper');
             const prevMargin = wrapper ? wrapper.style.marginTop : null;
             if (wrapper) wrapper.style.marginTop = '0px';
 
+            // Función de restauración reutilizable
+            function restoreAll() {
+                snapshot.forEach(({ el, prev }) => { el.style.display = prev; });
+                if (wrapper && prevMargin !== null) wrapper.style.marginTop = prevMargin;
+            }
+
             setTimeout(() => {
                 window.parent.print();
 
+                // Fallback: si afterprint no se dispara (ej. cancelar en Chrome),
+                // restauramos igual a los 2 segundos
+                const fallbackTimer = setTimeout(restoreAll, 2000);
+
                 window.parent.addEventListener('afterprint', function restore() {
-                    snapshot.forEach(({ el, prev }) => { el.style.display = prev; });
-                    if (wrapper && prevMargin !== null) wrapper.style.marginTop = prevMargin;
+                    clearTimeout(fallbackTimer);  // cancelamos el fallback si afterprint sí se disparó
+                    restoreAll();
                     window.parent.removeEventListener('afterprint', restore);
                 }, { once: true });
+
             }, 300);
         }
         </script>
