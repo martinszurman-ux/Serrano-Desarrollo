@@ -95,45 +95,37 @@ def render_adhesion(logo_url):
 
     st.text_input("Correo Electrónico (E-mail):", key="tut_email_f")
 
-    # ── PLAN DE PAGO ──────────────────────────────────────────────────────────
-    # Marcador ANTES de los pills — el JS lo usa para ubicar el widget
-    st.markdown('<div id="plan-pago-anchor"></div>', unsafe_allow_html=True)
+    st.markdown("<hr style='margin: 5px 0;'>", unsafe_allow_html=True)
 
-    plan_elegido = st.pills(
-        "Seleccione su Plan de Pago:",
-        options=["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"],
-        default="PLAN 4",
-        key="plan_sel_f",
-    )
+    # ── PLAN DE PAGO + DISCLAIMER (lado a lado) ───────────────────────────────
+    col_plan, col_legal = st.columns([1, 1])
 
-    # Texto de reemplazo — oculto en pantalla, el JS lo muestra al imprimir
-    plan_texto = plan_elegido if plan_elegido else "PLAN 4"
-    st.markdown(
-        f"""<div id="plan-print-text"
-                 style="display:none; font-size:0.85rem; font-weight:700;
-                        color:black; padding:4px 0;">
-            Plan de Pagos seleccionado: <u>{plan_texto}</u>
-        </div>""",
-        unsafe_allow_html=True,
-    )
+    with col_plan:
+        st.pills(
+            "Seleccione su Plan de Pago:",
+            options=["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"],
+            default="PLAN 4",
+            key="plan_sel_f",
+        )
 
-    # ── TEXTO LEGAL ───────────────────────────────────────────────────────────
-    st.markdown("""
-        <div style="font-size: 0.68rem; text-align: justify; border: 1px solid #ccc;
-                    padding: 8px; background-color: #f9f9f9; color: black;
-                    border-radius: 5px; line-height: 1.1;">
-        Declaro bajo juramento que los datos aqui volcados son absolutamente exactos y acepto,
-        para la cancelacion de los servicios a prestar por <b>SERRANO TURISMO</b>, el plan de pagos
-        que figura en la solicitud de reserva mencionada anteriormente denominado.<br>
-        Los planes al contado deberan abonarse dentro de los 30 dias de firmado el contrato.
-        Ademas declaro conocer todas y cada uno de las condiciones del contrato suscripto por mi
-        y/u otro representante del contingente de referencia.<br>
-        <b>NOTA: De no marcar ningun plan de pago, su chequera se emitira como PLAN CUOTAS (PLAN 4).</b>
-        </div>
-    """, unsafe_allow_html=True)
+    with col_legal:
+        st.markdown("""
+            <div style="font-size: 0.65rem; text-align: justify; border: 1px solid #ccc;
+                        padding: 8px; background-color: #f9f9f9; color: black;
+                        border-radius: 5px; line-height: 1.15; height: 100%;
+                        box-sizing: border-box;">
+            Declaro bajo juramento que los datos aqui volcados son absolutamente exactos y acepto,
+            para la cancelacion de los servicios a prestar por <b>SERRANO TURISMO</b>, el plan de pagos
+            que figura en la solicitud de reserva mencionada anteriormente denominado.
+            Los planes al contado deberan abonarse dentro de los 30 dias de firmado el contrato.
+            Ademas declaro conocer todas y cada uno de las condiciones del contrato suscripto por mi
+            y/u otro representante del contingente de referencia.<br>
+            <b>NOTA: De no marcar ningun plan de pago, su chequera se emitira como PLAN CUOTAS (PLAN 4).</b>
+            </div>
+        """, unsafe_allow_html=True)
 
     # ── FIRMAS ────────────────────────────────────────────────────────────────
-    st.markdown('<div class="firmas-container" style="margin-top: 30px;">', unsafe_allow_html=True)
+    st.markdown('<div class="firmas-container" style="margin-top: 25px;">', unsafe_allow_html=True)
     f1, f2 = st.columns(2)
     f1.markdown(
         "<hr style='border:0.5px solid black; margin-bottom:0;'>"
@@ -164,7 +156,6 @@ def render_adhesion(logo_url):
         function prepareAndPrint() {
             const doc = window.parent.document;
 
-            // ── 1. OCULTAR ELEMENTOS DE UI ────────────────────────────────
             const selectorsToHide = [
                 '.navbar', '.navbar-mobile',
                 '[data-testid="stHeader"]', '[data-testid="stToolbar"]',
@@ -184,44 +175,6 @@ def render_adhesion(logo_url):
             const prevMargin = wrapper ? wrapper.style.marginTop : null;
             if (wrapper) wrapper.style.marginTop = '0px';
 
-            // ── 2. OCULTAR EL WIDGET DE PILLS ────────────────────────────
-            // Buscamos el anchor que pusimos antes del widget y desde ahí
-            // subimos al stVerticalBlock padre para ocultar todo el bloque
-            // del pills (label + botones).
-            const anchor = doc.getElementById('plan-pago-anchor');
-            let pillsBlock = null;
-            if (anchor) {
-                // El anchor está en un stMarkdownContainer dentro de un bloque vertical.
-                // El widget pills está en el bloque hermano siguiente.
-                // Buscamos el stVerticalBlock que los contiene a ambos y ocultamos
-                // los dos hijos: el anchor y el pills.
-                const parent = anchor.closest('[data-testid="stVerticalBlock"]');
-                if (parent) {
-                    // Encontramos todos los stVerticalBlock hijos directos que
-                    // contienen el anchor o el pills (data-testid="stPills")
-                    parent.querySelectorAll('[data-testid="stPills"]').forEach(el => {
-                        snapshot.push({ el, prev: el.style.display });
-                        el.style.display = 'none';
-                    });
-                    // También el bloque que contiene el anchor
-                    const anchorBlock = anchor.closest('[data-testid="stVerticalBlock"] > div');
-                    if (anchorBlock) {
-                        snapshot.push({ el: anchorBlock, prev: anchorBlock.style.display });
-                        anchorBlock.style.display = 'none';
-                    }
-                }
-            }
-            // Fallback: ocultar por data-testid directamente en todo el doc
-            doc.querySelectorAll('[data-testid="stPills"]').forEach(el => {
-                snapshot.push({ el, prev: el.style.display });
-                el.style.display = 'none';
-            });
-
-            // ── 3. MOSTRAR TEXTO DEL PLAN ─────────────────────────────────
-            const planText = doc.getElementById('plan-print-text');
-            if (planText) planText.style.display = 'block';
-
-            // ── 4. INYECTAR CSS DE IMPRESIÓN EN EL PADRE ─────────────────
             const printStyle = doc.createElement('style');
             printStyle.id = 'serrano-print-overrides';
             printStyle.textContent = `
@@ -242,7 +195,6 @@ def render_adhesion(logo_url):
                     padding-bottom: 0 !important;
                 }
                 [data-testid="stHorizontalBlock"] { gap: 0.5rem !important; }
-                [data-testid="stPills"] { display: none !important; }
                 input {
                     border: none !important;
                     border-bottom: 1px solid #000 !important;
@@ -257,17 +209,11 @@ def render_adhesion(logo_url):
                 label p { font-size: 0.72rem !important; margin: 0 !important; }
                 hr { margin: 2px 0 !important; }
                 [data-testid="stImage"] img { max-height: 45px !important; width: auto !important; }
-                div[style*="0.68rem"] {
-                    font-size: 0.6rem !important;
-                    line-height: 1.05 !important;
-                    padding: 4px !important;
-                }
                 .firmas-container { margin-top: 10px !important; }
                 .main { page-break-inside: avoid; }
             `;
             doc.head.appendChild(printStyle);
 
-            // ── 5. IMPRIMIR Y RESTAURAR ───────────────────────────────────
             setTimeout(() => {
                 window.parent.print();
 
@@ -276,7 +222,6 @@ def render_adhesion(logo_url):
                     if (injected) injected.remove();
                     snapshot.forEach(({ el, prev }) => { el.style.display = prev; });
                     if (wrapper && prevMargin !== null) wrapper.style.marginTop = prevMargin;
-                    if (planText) planText.style.display = 'none';
                 }
 
                 const fallbackTimer = setTimeout(restoreAll, 2000);
