@@ -52,14 +52,6 @@ def render_adhesion(logo_url):
             h3 { font-size: 1.1rem !important; margin-top: 15px !important; }
             hr { margin: 8px 0 !important; }
             .firmas-container { margin-top: 40px !important; }
-
-            /* Clase que JS agrega dinámicamente antes de imprimir */
-            .hide-on-print {
-                display: none !important;
-                visibility: hidden !important;
-                height: 0 !important;
-                overflow: hidden !important;
-            }
         }
         </style>
     """, unsafe_allow_html=True)
@@ -169,9 +161,14 @@ def render_adhesion(logo_url):
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ── BOTÓN DE IMPRESIÓN CON JS ─────────────────────────────────────────────
-    # El JS accede a window.parent (el documento completo de Streamlit),
-    # oculta todos los elementos que no son el formulario ANTES de llamar
-    # a print(), y los restaura automáticamente con el evento afterprint.
+    # Estrategia:
+    #   1. Desde window.parent accedemos al DOM completo de Streamlit
+    #   2. Ocultamos: navbar custom (.navbar / .navbar-mobile), header de
+    #      Streamlit, sidebar, botones, footer, WhatsApp flotante e iframes
+    #   3. Quitamos el margin-top del .content-wrapper para que el form
+    #      arranque desde el top de la hoja sin espacio en blanco
+    #   4. Llamamos a print() con un pequeño delay para que el DOM se actualice
+    #   5. Con afterprint restauramos todo al estado original
     components.html(
         """
         <html><body>
@@ -187,36 +184,46 @@ def render_adhesion(logo_url):
         function prepareAndPrint() {
             const doc = window.parent.document;
 
-            // Selectores de todo lo que NO es el formulario
             const selectorsToHide = [
+                // ── Navbar custom de Serrano Turismo ──
+                '.navbar',
+                '.navbar-mobile',
+                // ── Internos de Streamlit ──
                 '[data-testid="stHeader"]',
                 '[data-testid="stToolbar"]',
                 '[data-testid="stDecoration"]',
                 '[data-testid="stSidebar"]',
                 '[data-testid="stSidebarNav"]',
+                // ── Botones ──
                 '.stButton',
+                // ── Footer y WhatsApp flotante ──
                 'footer',
-                'iframe',   // oculta también este iframe (el botón mismo)
+                '.footer-container',
+                '.wa-float',
+                // ── Todos los iframes (este botón inclusive) ──
+                'iframe',
             ];
 
-            // Guardamos referencias y display original para restaurar después
             const snapshot = [];
-            selectorsToHide.forEach(selector => {
-                doc.querySelectorAll(selector).forEach(el => {
-                    snapshot.push({ el: el, prev: el.style.display });
+            selectorsToHide.forEach(sel => {
+                doc.querySelectorAll(sel).forEach(el => {
+                    snapshot.push({ el, prev: el.style.display });
                     el.style.display = 'none';
                 });
             });
 
-            // Pequeño delay para que el DOM se actualice antes de imprimir
+            // Eliminar el espacio superior del content-wrapper
+            // (que existe para dejar lugar al navbar fixed)
+            const wrapper = doc.querySelector('.content-wrapper');
+            const prevMargin = wrapper ? wrapper.style.marginTop : null;
+            if (wrapper) wrapper.style.marginTop = '0px';
+
             setTimeout(() => {
                 window.parent.print();
 
-                // Restauramos todo al terminar de imprimir / cancelar
                 window.parent.addEventListener('afterprint', function restore() {
-                    snapshot.forEach(item => {
-                        item.el.style.display = item.prev;
-                    });
+                    snapshot.forEach(({ el, prev }) => { el.style.display = prev; });
+                    if (wrapper && prevMargin !== null) wrapper.style.marginTop = prevMargin;
                     window.parent.removeEventListener('afterprint', restore);
                 }, { once: true });
             }, 300);
