@@ -6,108 +6,117 @@ import streamlit.components.v1 as components
 from utilidades.footer import render_footer
 
 def render_adhesion(logo_url):
-    # --- BASE DE DATOS CSV ---
+    # --- BASE DE DATOS ---
     DB_FILE = "datos_adhesiones.csv"
     if not os.path.exists(DB_FILE):
         df_init = pd.DataFrame(columns=["Fecha", "Colegio", "Anio", "Pasajero", "DNI", "Plan"])
         df_init.to_csv(DB_FILE, index=False)
 
-    # CSS PARA FORZAR UNA SOLA HOJA Y OCULTAR LOGOS GIGANTES
+    # CSS RADICAL PARA OCULTAR TODO LO QUE NO SEA LA FICHA
     st.markdown("""
         <style>
+        /* Estilos para la web */
         .main { background-color: white !important; }
-        label p { font-weight: 700 !important; font-size: 0.8rem !important; color: black !important; }
-        input { height: 28px !important; }
-
+        
+        /* FUERZA BRUTA PARA IMPRESIÓN */
         @media print {
-            /* 1. OCULTAR TODO LO QUE NO ES EL FORMULARIO */
-            header, footer, [data-testid="stHeader"], [data-testid="stSidebar"], 
-            [data-testid="stImage"], .stButton, iframe, [data-testid="stSidebarNav"],
-            nav, .no-print, #MainMenu { 
-                display: none !important; 
+            /* Ocultar absolutamente todo lo que Streamlit genera por fuera del contenido */
+            header, footer, nav, iframe, button, .stButton, 
+            [data-testid="stHeader"], 
+            [data-testid="stSidebar"], 
+            [data-testid="stSidebarNav"],
+            [data-testid="stImage"],
+            [data-testid="stToolbar"],
+            #MainMenu, .no-print {
+                display: none !important;
                 visibility: hidden !important;
                 height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
-            
-            /* 2. AJUSTES DE PÁGINA */
-            @page { size: A4; margin: 0.4cm; }
+
+            /* Reset de página A4 */
+            @page { size: A4; margin: 0.5cm; }
             html, body { 
-                zoom: 80%; 
-                background-color: white !important;
+                zoom: 78%; /* Un poco más chico para asegurar 1 sola hoja */
+                background: white !important; 
                 color: black !important;
+                width: 210mm;
+                height: 297mm;
             }
-            
-            /* 3. COMPRESIÓN DE ESPACIOS */
+
             .main .block-container { 
                 padding: 0 !important; 
                 margin: 0 !important; 
+                max-width: 100% !important;
             }
-            div[data-testid="stVerticalBlock"] > div {
-                margin-bottom: -12px !important; 
-            }
-            
-            /* 4. ESTILO DE FORMULARIO IMPRESO */
+
+            /* Ajuste de inputs para que parezcan líneas */
             input { 
                 border: none !important; 
                 border-bottom: 1px solid black !important; 
                 background: transparent !important;
             }
-            hr { margin: 4px 0 !important; border: 0.5px solid black !important; }
+            
+            /* Comprimir espacios entre elementos de Streamlit */
+            div[data-testid="stVerticalBlock"] > div {
+                margin-bottom: -15px !important; 
+            }
+            
+            hr { margin: 5px 0 !important; border: 0.5px solid black !important; }
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Título manual (Evita que Streamlit use widgets de imagen que se agrandan)
+    # --- CABECERA MANUAL (Sin widgets de Streamlit para evitar que se agranden) ---
     st.markdown(f"""
-        <div style="text-align: center;">
-            <h1 style="margin: 0; color: black; font-size: 22px;">SOLICITUD DE INGRESO</h1>
-            <p style="margin: 0; font-weight: bold; color: black;">Serrano Turismo - Ficha de Adhesión</p>
+        <div style="text-align: center; color: black;">
+            <h1 style="margin: 0; font-size: 24px;">SOLICITUD DE INGRESO</h1>
+            <p style="margin: 0; font-weight: bold; font-size: 14px;">Serrano Turismo - Ficha de Adhesión</p>
         </div>
-        <hr style="margin: 5px 0;">
+        <hr style="margin: 10px 0; border: 1px solid black;">
     """, unsafe_allow_html=True)
 
-    # --- CUERPO DE LA FICHA ---
+    # --- CAMPOS DEL FORMULARIO ---
     st.markdown("### 📋 DATOS DE CONTROL")
     c1, c2, c3, c4 = st.columns(4)
-    f_sol = c1.date_input("Fecha de Solicitud", datetime.now())
-    n_clie = c2.text_input("N° de Cliente", key="ctrl_nclie_f")
-    n_cont = c3.text_input("N° de Contrato", key="ctrl_contr_f")
-    p_loc = c4.text_input("% Localidad", key="ctrl_loc_f")
+    fecha_val = c1.date_input("Fecha", datetime.now())
+    n_clie = c2.text_input("N° de Cliente")
+    n_cont = c3.text_input("N° de Contrato")
+    p_loc = c4.text_input("% Liberado")
 
     inst1, inst2 = st.columns([2, 1])
-    colegio = inst1.text_input("Establecimiento Educativo", key="ctrl_inst_f")
-    anio_div = inst2.text_input("Año / División", key="ctrl_anio_f")
+    colegio = inst1.text_input("Establecimiento Educativo")
+    anio_div = inst2.text_input("Año / División")
 
     st.markdown("### 🧒 DATOS DEL PASAJERO")
     ap1, nom1 = st.columns(2)
-    p_ape = ap1.text_input("Apellido/s", key="pas_ape_f")
-    p_nom = nom1.text_input("Nombre/s", key="pas_nom_f")
+    p_ape = ap1.text_input("Apellido/s")
+    p_nom = nom1.text_input("Nombre/s")
     
     cd1, cd2, cd3 = st.columns([1, 1, 1])
-    p_dni = cd1.text_input("DNI / CUIL", key="pas_dni_f")
-    p_vence = cd2.text_input("Vencimiento DNI", key="pas_vence_f") 
-    p_nace = cd3.date_input("Nacimiento", min_value=datetime(1990,1,1), key="pas_nace_f")
+    p_dni = cd1.text_input("DNI / CUIL")
+    p_vence = cd2.text_input("Vencimiento DNI") 
+    p_nace = cd3.date_input("Nacimiento", min_value=datetime(1990,1,1))
     
-    st.radio("Sexo", ["Masculino", "Femenino", "X"], horizontal=True, key="pas_sexo_f")
+    st.radio("Sexo", ["Masculino", "Femenino", "X"], horizontal=True)
 
     dom1, dom2 = st.columns([2, 1])
-    p_dom = dom1.text_input("Domicilio Particular", key="pas_dom_f")
-    p_cp = dom2.text_input("Localidad / CP", key="pas_cp_f")
+    p_dom = dom1.text_input("Domicilio Particular")
+    p_cp = dom2.text_input("Localidad / CP")
 
     st.markdown("### 👥 DATOS DE LOS PADRES / TUTORES")
-    t1_1, t1_2, t1_3 = st.columns([2, 1, 1])
-    t1_nom = t1_1.text_input("Nombre y Apellido", key="t1_nom_f")
-    t1_cuil = t1_2.text_input("CUIL", key="t1_cuil_f")
-    t1_tel = t1_3.text_input("Teléfono", key="t1_tel_f")
-    t_email = st.text_input("Correo Electrónico (E-mail):", key="tut_email_f")
+    t1, t2, t3 = st.columns([2, 1, 1])
+    t_nom = t1.text_input("Nombre y Apellido Tutor")
+    t_cuil = t2.text_input("CUIL Tutor")
+    t_tel = t3.text_input("Teléfono")
+    st.text_input("Correo Electrónico (E-mail):")
 
-    plan_sel = st.pills("Seleccione su Plan de Pago:", 
-                       options=["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"], 
-                       default="PLAN 4", key="plan_sel_f")
+    plan_sel = st.pills("Plan de Pago:", options=["PLAN 1", "PLAN 2", "PLAN 3", "PLAN 4", "PLAN 5", "OTRO"], default="PLAN 4")
 
-    # Texto Legal completo
+    # --- TEXTO LEGAL COMPLETO ---
     st.markdown(f"""
-        <div style="font-size: 0.65rem; text-align: justify; border: 1px solid #ccc; padding: 6px; background-color: #f9f9f9; color: black; line-height: 1.1; margin-top: 5px;">
+        <div style="font-size: 0.68rem; text-align: justify; border: 1px solid #000; padding: 8px; color: black; line-height: 1.2; margin-top: 10px;">
         Declaro bajo juramento que los datos aqui volcados son absolutamente exactos y acepto, para la cancelacion de los servicios a prestar por <b>SERRANO TURISMO</b>, el plan de pagos que figura en la solicitud de reserva mencionada anteriormente denominado.<br>
         Los planes al contado deberan abonarse dentro de los 30 dias de firmado el contrato.
         Ademas declaro conocer todas y cada uno de las condiciones del contrato suscripto por mi y/u otro representante del contingente de referencia.<br>
@@ -115,38 +124,41 @@ def render_adhesion(logo_url):
         </div>
     """, unsafe_allow_html=True)
 
-    # Firmas
-    st.markdown('<div style="margin-top: 20px;">', unsafe_allow_html=True)
+    # --- FIRMAS ---
+    st.markdown('<div style="margin-top: 25px;">', unsafe_allow_html=True)
     f1, f2 = st.columns(2)
     f1.markdown("<hr style='border:0.5px solid black; margin-bottom:0;'><p style='text-align:center; font-size:8pt; color:black;'>Firma Responsable</p>", unsafe_allow_html=True)
     f2.markdown("<hr style='border:0.5px solid black; margin-bottom:0;'><p style='text-align:center; font-size:7pt; color:black;'>Aclaración y N° de C.U.I.L.</p>", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- BOTONES SIN VALIDACIÓN ---
+    # --- ACCIONES ---
     st.markdown("---")
-    col_btn1, col_btn2 = st.columns(2)
+    col_g, col_i = st.columns(2)
     
-    if col_btn1.button("💾 GUARDAR REGISTRO"):
-        nuevo = pd.DataFrame([{
-            "Fecha": f_sol, "Colegio": colegio, "Anio": anio_div, 
-            "Pasajero": f"{p_ape} {p_nom}", "DNI": p_dni, "Plan": plan_sel
-        }])
+    if col_g.button("💾 GUARDAR REGISTRO"):
+        nuevo = pd.DataFrame([{"Fecha": fecha_val, "Colegio": colegio, "Anio": anio_div, "Pasajero": f"{p_ape} {p_nom}", "DNI": p_dni, "Plan": plan_sel}])
         nuevo.to_csv(DB_FILE, mode='a', header=False, index=False)
-        st.success("✅ Registro guardado en la base de datos.")
+        st.success("Guardado.")
 
-    with col_btn2:
+    with col_i:
+        # Script mejorado para imprimir evitando menús
         components.html("""
-            <button style="background-color: #2E7D32; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;" 
-            onclick="window.parent.print()">🖨️ IMPRIMIR PDF</button>
+            <script>
+            function printDiv() {
+                window.parent.focus();
+                window.parent.print();
+            }
+            </script>
+            <button onclick="printDiv()" style="background-color: #2E7D32; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold;">
+            🖨️ IMPRIMIR COMPROBANTE
+            </button>
         """, height=70)
 
-    # Sidebar para exportar el Excel acumulado
+    # SIDEBAR
     with st.sidebar:
-        st.header("Administración")
+        st.header("Excel")
         if os.path.exists(DB_FILE):
-            df_exp = pd.read_csv(DB_FILE)
-            colegio_filtro = st.selectbox("Filtrar por Colegio", ["Todos"] + list(df_exp["Colegio"].unique()))
-            df_final = df_exp if colegio_filtro == "Todos" else df_exp[df_exp["Colegio"] == colegio_filtro]
-            st.download_button("📥 Descargar CSV para Excel", df_final.to_csv(index=False).encode('utf-8'), "adhesiones_serrano.csv")
+            df_hist = pd.read_csv(DB_FILE)
+            st.download_button("📥 Descargar Todo (CSV)", df_hist.to_csv(index=False).encode('utf-8'), "adhesiones.csv")
 
     render_footer()
