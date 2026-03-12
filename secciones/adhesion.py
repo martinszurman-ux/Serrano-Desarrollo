@@ -29,17 +29,20 @@ def render_adhesion(logo_url):
         </style>
     """, unsafe_allow_html=True)
 
-    # ── CABECERA ──────────────────────────────────────────────────────────────
+    # ── CABECERA: logo + título + subtítulo en la misma línea ─────────────────
     c_logo, c_tit = st.columns([1, 5])
     with c_logo:
         st.image(logo_url, width=65)
     with c_tit:
         st.markdown(
-            "<h1 style='color: black; margin: 0; padding: 0;'>SOLICITUD DE INGRESO</h1>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            "<p style='font-weight: bold; color: black; margin-top: -5px;'>Serrano Turismo - Ficha de Adhesión</p>",
+            """<div style="display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;">
+                <h1 style="color:black; margin:0; padding:0; font-size:1.6rem; line-height:1.2;">
+                    SOLICITUD DE INGRESO
+                </h1>
+                <span style="font-weight:600; color:#444; font-size:1rem; white-space:nowrap;">
+                    Serrano Turismo - Ficha de Adhesión
+                </span>
+               </div>""",
             unsafe_allow_html=True,
         )
 
@@ -153,7 +156,7 @@ def render_adhesion(logo_url):
         """, unsafe_allow_html=True)
 
     # ── FIRMAS ────────────────────────────────────────────────────────────────
-    st.markdown('<div class="firmas-container" style="margin-top: 25px;">', unsafe_allow_html=True)
+    st.markdown('<div class="firmas-container" style="margin-top: 60px;">', unsafe_allow_html=True)
     f1, f2 = st.columns(2)
     f1.markdown(
         "<hr style='border:0.5px solid black; margin-bottom:0;'>"
@@ -237,7 +240,7 @@ def render_adhesion(logo_url):
                 label p { font-size: 0.72rem !important; margin: 0 !important; }
                 hr { margin: 2px 0 !important; }
                 [data-testid="stImage"] img { max-height: 45px !important; width: auto !important; }
-                .firmas-container { margin-top: 10px !important; }
+                .firmas-container { margin-top: 50px !important; }
                 .main { page-break-inside: avoid; }
             `;
             doc.head.appendChild(printStyle);
@@ -266,12 +269,5 @@ def render_adhesion(logo_url):
         """,
         height=70,
     )
-
-    st.markdown("""
-        <div style="font-size:0.72rem; color:#888; margin-top:8px; text-align:center;">
-        💡 <b>Consejo:</b> En el diálogo de impresión, ir a <b>Más opciones</b>
-        y desactivar <b>Encabezados y pies de página</b> para un resultado más limpio.
-        </div>
-    """, unsafe_allow_html=True)
 
     render_footer()
